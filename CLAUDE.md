@@ -7,3 +7,8 @@
 - Always work within this project directory. Do not switch directories or ask which directory to use.
 - Run all commands, builds, and scripts from this project root.
 - If something fails, fix it and retry automatically without asking.
+
+## Commit Messages
+- NEVER add "Co-Authored-By: Claude" or any Claude/AI attribution to commit messages.
+- NEVER use conventional commit prefixes like "feat:", "fix:", "chore:", "refactor:", etc.
+- Write plain, descriptive commit messages that start with a lowercase verb (e.g., "add dashboard page", "fix login redirect bug").
