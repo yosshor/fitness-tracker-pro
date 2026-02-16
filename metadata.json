@@ -1,0 +1,7 @@
+{
+  "name": "Fitness Tracker Pro (Cyber-Gym Edition)",
+  "description": "A high-end, cyber-gym styled fitness tracking application featuring smart workout logging, dynamic routine generation, and progress visualization.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
