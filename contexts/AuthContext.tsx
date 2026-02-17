@@ -55,6 +55,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     let cancelled = false;
+    let loadingCleared = false;
+
+    const clearLoading = () => {
+      if (!cancelled && !loadingCleared) {
+        loadingCleared = true;
+        setIsLoading(false);
+      }
+    };
 
     // onAuthStateChange is the single source of truth for auth state.
     // It fires INITIAL_SESSION on setup, SIGNED_IN on login, TOKEN_REFRESHED, etc.
@@ -68,44 +76,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setSupabaseUser(null);
           setUser(null);
         }
-        setIsLoading(false);
+        clearLoading();
       }
     );
 
-    // Separately try to get the current session. This handles cases where
-    // onAuthStateChange INITIAL_SESSION fires before our listener is set up,
-    // or when the auth token refresh times out and the listener never fires.
-    const initialize = async () => {
-      try {
-        await authReady;
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (cancelled) return;
-        if (error) {
-          // Token refresh timeout or other auth error.
-          // Clear stale tokens so the user isn't stuck on every reload.
-          console.error('Auth session error:', error.message);
-          await supabase.auth.signOut({ scope: 'local' });
-          setIsLoading(false);
-          return;
-        }
-        if (session?.user) {
-          setSupabaseUser(session.user);
-          await loadOrCreateProfile(session.user);
-        }
-      } catch (err: any) {
-        if (err?.name === 'AbortError') return;
-        // Same as above — if getSession throws, clear stale tokens
-        console.error('Auth init error:', err);
-        try { await supabase.auth.signOut({ scope: 'local' }); } catch {}
-      } finally {
-        if (!cancelled) setIsLoading(false);
-      }
-    };
+    // If we captured an OAuth hash, wait for the session to be set.
+    // authReady resolves immediately if there was no hash to capture.
+    authReady.catch((err) => {
+      console.error('Auth ready error:', err);
+      clearLoading();
+    });
 
-    initialize();
+    // Hard safety timeout: if onAuthStateChange never fires (e.g. Supabase token
+    // refresh hangs internally), ensure the loading spinner clears and shows login.
+    // This prevents the app from being stuck on "Loading..." forever.
+    const safetyTimer = setTimeout(() => {
+      if (!loadingCleared) {
+        console.warn('Auth initialization timed out, showing login screen');
+        clearLoading();
+      }
+    }, 4000);
 
     return () => {
       cancelled = true;
+      clearTimeout(safetyTimer);
       subscription.unsubscribe();
     };
   }, []);

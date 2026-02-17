@@ -33,6 +33,10 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     flowType: 'implicit',
     detectSessionInUrl: false, // we handle it manually below
+    // Reduce lock timeout from the default 10s to 3s. When a stale token
+    // refresh hangs, this prevents the "Auth token processing timed out"
+    // error from blocking the UI for 10+ seconds.
+    lockAcquireTimeout: 3000,
   },
 });
 
