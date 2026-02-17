@@ -24,4 +24,5 @@ dist-ssr
 *.sw?
 .env.development.local
 .claude/
+**/.env.*
 .env.*

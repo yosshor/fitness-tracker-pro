@@ -29,13 +29,23 @@ export const Settings: React.FC = () => {
   }, [settings]);
 
   const saveProfile = async () => {
-    await updateProfile({ displayName, currentSplit: selectedSplit as any, volumePerMuscle: volume });
-    addNotification('success', t('success'));
+    try {
+      await updateProfile({ displayName, currentSplit: selectedSplit as any, volumePerMuscle: volume });
+      addNotification('success', t('success'));
+    } catch (err) {
+      console.error('Profile save error:', err);
+      addNotification('error', 'Failed to save profile');
+    }
   };
 
   const saveApiKeys = async () => {
-    await updateSettings({ geminiApiKey: geminiKey });
-    addNotification('success', t('success'));
+    try {
+      await updateSettings({ geminiApiKey: geminiKey });
+      addNotification('success', t('success'));
+    } catch (err) {
+      console.error('Settings save error:', err);
+      addNotification('error', 'Failed to save settings');
+    }
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
