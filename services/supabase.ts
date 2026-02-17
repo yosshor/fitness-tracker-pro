@@ -40,6 +40,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
+// Flag indicating whether an OAuth callback hash was captured.
+// AuthContext uses this to avoid clearing loading state prematurely
+// when onAuthStateChange fires INITIAL_SESSION with no session yet.
+export const hadOAuthCallback = !!capturedAuthHash;
+
 // If we captured an auth hash, manually set the session from the token.
 // Export the promise so AuthContext can await it before reading the session.
 export let authReady: Promise<void> = Promise.resolve();

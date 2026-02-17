@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
-import { supabase, authReady } from '../services/supabase';
+import { supabase, authReady, hadOAuthCallback } from '../services/supabase';
 import { getUserProfile, saveUserProfile } from '../services/supabaseService';
 import { UserProfile } from '../types';
 
@@ -64,11 +64,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
 
+    // Track whether the OAuth setSession has resolved yet.
+    // When we have a pending OAuth callback, ignore INITIAL_SESSION with null
+    // session — setSession hasn't fired yet and the real session is coming.
+    let oauthResolved = !hadOAuthCallback;
+
     // onAuthStateChange is the single source of truth for auth state.
     // It fires INITIAL_SESSION on setup, SIGNED_IN on login, TOKEN_REFRESHED, etc.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (cancelled) return;
+
+        // During an OAuth callback, the listener fires INITIAL_SESSION with
+        // session=null before setSession() completes. Skip that event —
+        // the SIGNED_IN event will follow once setSession resolves.
+        if (!oauthResolved && !session) {
+          return;
+        }
+
         if (session?.user) {
           setSupabaseUser(session.user);
           await loadOrCreateProfile(session.user);
@@ -80,22 +93,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-    // If we captured an OAuth hash, wait for the session to be set.
-    // authReady resolves immediately if there was no hash to capture.
-    authReady.catch((err) => {
-      console.error('Auth ready error:', err);
-      clearLoading();
-    });
+    // If we captured an OAuth hash, wait for setSession to complete.
+    // Once it resolves, onAuthStateChange will fire SIGNED_IN with the session.
+    // If it fails, clear loading so the user can retry.
+    authReady
+      .then(() => { oauthResolved = true; })
+      .catch((err) => {
+        console.error('Auth ready error:', err);
+        oauthResolved = true;
+        clearLoading();
+      });
 
     // Hard safety timeout: if onAuthStateChange never fires (e.g. Supabase token
     // refresh hangs internally), ensure the loading spinner clears and shows login.
     // This prevents the app from being stuck on "Loading..." forever.
+    // Use a longer timeout when an OAuth callback is pending (needs network round-trip).
     const safetyTimer = setTimeout(() => {
       if (!loadingCleared) {
         console.warn('Auth initialization timed out, showing login screen');
+        oauthResolved = true;
         clearLoading();
       }
-    }, 4000);
+    }, hadOAuthCallback ? 8000 : 4000);
 
     return () => {
       cancelled = true;
