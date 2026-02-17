@@ -150,6 +150,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     if (data.user && data.session) {
       await loadOrCreateProfile(data.user);
+    } else if (data.user && !data.session) {
+      // Email confirmation is required — signal the UI
+      throw new Error('EMAIL_CONFIRMATION_REQUIRED');
     }
   };
 
