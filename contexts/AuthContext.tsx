@@ -55,47 +55,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     let cancelled = false;
-    let initialLoadDone = false;
 
+    // onAuthStateChange is the single source of truth for auth state.
+    // It fires INITIAL_SESSION on setup, SIGNED_IN on login, TOKEN_REFRESHED, etc.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (cancelled) return;
         if (session?.user) {
           setSupabaseUser(session.user);
-          // Only load profile from listener for events after initial load,
-          // to avoid duplicate fetches with initialize()
-          if (initialLoadDone && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
-            await loadOrCreateProfile(session.user);
-          }
+          await loadOrCreateProfile(session.user);
         } else {
           setSupabaseUser(null);
           setUser(null);
         }
-        if (initialLoadDone) setIsLoading(false);
+        setIsLoading(false);
       }
     );
 
+    // Separately try to get the current session. This handles cases where
+    // onAuthStateChange INITIAL_SESSION fires before our listener is set up,
+    // or when the auth token refresh times out and the listener never fires.
     const initialize = async () => {
       try {
         await authReady;
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
         if (cancelled) return;
+        if (error) {
+          // Token refresh timeout or other auth error.
+          // Clear stale tokens so the user isn't stuck on every reload.
+          console.error('Auth session error:', error.message);
+          await supabase.auth.signOut({ scope: 'local' });
+          setIsLoading(false);
+          return;
+        }
         if (session?.user) {
           setSupabaseUser(session.user);
           await loadOrCreateProfile(session.user);
         }
       } catch (err: any) {
-        if (err?.name === 'AbortError') return; // StrictMode cleanup
+        if (err?.name === 'AbortError') return;
+        // Same as above — if getSession throws, clear stale tokens
         console.error('Auth init error:', err);
+        try { await supabase.auth.signOut({ scope: 'local' }); } catch {}
       } finally {
-        if (!cancelled) {
-          initialLoadDone = true;
-          setIsLoading(false);
-        }
+        if (!cancelled) setIsLoading(false);
       }
     };
 
     initialize();
+
     return () => {
       cancelled = true;
       subscription.unsubscribe();
