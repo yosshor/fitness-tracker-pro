@@ -1,17 +1,13 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import {
-  onAuthStateChanged, signInWithEmailAndPassword,
-  createUserWithEmailAndPassword, signOut,
-  sendPasswordResetEmail, signInWithPopup, User
-} from 'firebase/auth';
-import { auth, googleProvider } from '../services/firebase';
-import { getUserProfile, saveUserProfile } from '../services/firestoreService';
+import { User } from '@supabase/supabase-js';
+import { supabase } from '../services/supabase';
+import { getUserProfile, saveUserProfile } from '../services/supabaseService';
 import { UserProfile } from '../types';
 
 interface AuthContextType {
   user: UserProfile | null;
-  firebaseUser: User | null;
+  supabaseUser: User | null;
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
@@ -27,50 +23,72 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+  const [supabaseUser, setSupabaseUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      if (fbUser) {
-        setFirebaseUser(fbUser);
-        try {
-          const profile = await getUserProfile(fbUser.uid);
-          if (profile) {
-            setUser(profile);
-          } else {
-            const newProfile: UserProfile = {
-              id: fbUser.uid,
-              email: fbUser.email || '',
-              displayName: fbUser.displayName || fbUser.email?.split('@')[0] || 'User',
-              currentSplit: 'Full Body',
-              volumePerMuscle: 2,
-              createdAt: new Date().toISOString()
-            };
-            await saveUserProfile(fbUser.uid, newProfile);
-            setUser(newProfile);
-          }
-        } catch (err) {
-          console.error('Error loading profile:', err);
-        }
+  const loadOrCreateProfile = async (sbUser: User) => {
+    try {
+      const profile = await getUserProfile(sbUser.id);
+      if (profile) {
+        setUser(profile);
       } else {
-        setFirebaseUser(null);
-        setUser(null);
+        const displayName =
+          sbUser.user_metadata?.full_name ||
+          sbUser.user_metadata?.name ||
+          sbUser.email?.split('@')[0] || 'User';
+        const newProfile: UserProfile = {
+          id: sbUser.id,
+          email: sbUser.email || '',
+          displayName,
+          currentSplit: 'Full Body',
+          volumePerMuscle: 2,
+          createdAt: new Date().toISOString()
+        };
+        await saveUserProfile(sbUser.id, newProfile);
+        setUser(newProfile);
       }
-      setIsLoading(false);
+    } catch (err) {
+      console.error('Error loading profile:', err);
+    }
+  };
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setSupabaseUser(session.user);
+        loadOrCreateProfile(session.user).finally(() => setIsLoading(false));
+      } else {
+        setIsLoading(false);
+      }
     });
-    return () => unsubscribe();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.user) {
+          setSupabaseUser(session.user);
+          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            await loadOrCreateProfile(session.user);
+          }
+        } else {
+          setSupabaseUser(null);
+          setUser(null);
+        }
+        setIsLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string) => {
     setError(null);
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (err: any) {
-      const msg = err.code === 'auth/invalid-credential' ? 'Invalid email or password'
-        : err.code === 'auth/user-not-found' ? 'No account found with this email'
-        : err.code === 'auth/too-many-requests' ? 'Too many attempts. Try again later'
+    const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+    if (err) {
+      const msg = err.message.includes('Invalid login credentials')
+        ? 'Invalid email or password'
+        : err.message.includes('Email not confirmed')
+        ? 'Please confirm your email before signing in'
         : 'Login failed. Please try again';
       setError(msg);
       throw err;
@@ -79,52 +97,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithGoogle = async () => {
     setError(null);
-    try {
-      await signInWithPopup(auth, googleProvider);
-      // onAuthStateChanged will handle profile creation/loading
-    } catch (err: any) {
-      const msg = err.code === 'auth/popup-closed-by-user' ? 'Sign-in cancelled'
-        : err.code === 'auth/popup-blocked' ? 'Pop-up blocked. Allow pop-ups and try again'
-        : 'Google sign-in failed. Please try again';
-      setError(msg);
+    const { error: err } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    });
+    if (err) {
+      setError('Google sign-in failed. Please try again');
       throw err;
     }
   };
 
   const signup = async (email: string, password: string, displayName: string) => {
     setError(null);
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
-      const newProfile: UserProfile = {
-        id: cred.user.uid,
-        email,
-        displayName,
-        currentSplit: 'Full Body',
-        volumePerMuscle: 2,
-        createdAt: new Date().toISOString()
-      };
-      await saveUserProfile(cred.user.uid, newProfile);
-      setUser(newProfile);
-    } catch (err: any) {
-      const msg = err.code === 'auth/email-already-in-use' ? 'An account with this email already exists'
-        : err.code === 'auth/weak-password' ? 'Password must be at least 6 characters'
-        : err.code === 'auth/invalid-email' ? 'Please enter a valid email'
+    const { data, error: err } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: displayName } },
+    });
+    if (err) {
+      const msg = err.message.includes('already registered')
+        ? 'An account with this email already exists'
+        : err.message.includes('Password')
+        ? 'Password must be at least 6 characters'
+        : err.message.includes('valid email')
+        ? 'Please enter a valid email'
         : 'Signup failed. Please try again';
       setError(msg);
       throw err;
     }
+    if (data.user && data.session) {
+      await loadOrCreateProfile(data.user);
+    }
   };
 
   const logout = async () => {
-    await signOut(auth);
+    await supabase.auth.signOut();
     setUser(null);
+    setSupabaseUser(null);
   };
 
   const resetPassword = async (email: string) => {
     setError(null);
-    try {
-      await sendPasswordResetEmail(auth, email);
-    } catch (err: any) {
+    const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    });
+    if (err) {
       setError('Failed to send reset email');
       throw err;
     }
@@ -140,7 +157,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider value={{
-      user, firebaseUser, isLoading, error,
+      user, supabaseUser, isLoading, error,
       login, loginWithGoogle, signup, logout, resetPassword, updateProfile, clearError
     }}>
       {children}
