@@ -14,9 +14,36 @@ declare global {
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Implicit flow returns tokens in the URL hash (#access_token=...).
+// Since we use HashRouter (#/route), we need to intercept the auth hash
+// BEFORE the router sees it. Extract and stash it, then let Supabase process it.
+let capturedAuthHash: string | null = null;
+const hash = window.location.hash;
+if (hash && hash.includes('access_token=')) {
+  capturedAuthHash = hash;
+  // Clear the hash so HashRouter doesn't try to route "access_token=..."
+  history.replaceState(null, '', window.location.pathname + window.location.search);
+}
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    flowType: 'pkce',
-    detectSessionInUrl: true,
+    flowType: 'implicit',
+    detectSessionInUrl: false, // we handle it manually below
   },
 });
+
+// If we captured an auth hash, manually set the session from the token.
+// Export the promise so AuthContext can await it before reading the session.
+export let authReady: Promise<void> = Promise.resolve();
+
+if (capturedAuthHash) {
+  const params = new URLSearchParams(capturedAuthHash.substring(1));
+  const accessToken = params.get('access_token');
+  const refreshToken = params.get('refresh_token');
+  if (accessToken && refreshToken) {
+    authReady = supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    }).then(() => undefined);
+  }
+}
