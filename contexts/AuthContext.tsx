@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
-import { supabase } from '../services/supabase';
+import { supabase, authReady } from '../services/supabase';
 import { getUserProfile, saveUserProfile } from '../services/supabaseService';
 import { UserProfile } from '../types';
 
@@ -54,20 +54,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setSupabaseUser(session.user);
-        loadOrCreateProfile(session.user).finally(() => setIsLoading(false));
-      } else {
-        setIsLoading(false);
-      }
-    });
+    let cancelled = false;
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (cancelled) return;
         if (session?.user) {
           setSupabaseUser(session.user);
-          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
             await loadOrCreateProfile(session.user);
           }
         } else {
@@ -78,7 +72,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-    return () => subscription.unsubscribe();
+    const initialize = async () => {
+      try {
+        await authReady;
+        const { data: { session } } = await supabase.auth.getSession();
+        if (cancelled) return;
+        if (session?.user) {
+          setSupabaseUser(session.user);
+          await loadOrCreateProfile(session.user);
+        }
+      } catch (err: any) {
+        if (err?.name === 'AbortError') return; // StrictMode cleanup
+        console.error('Auth init error:', err);
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
+    initialize();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
