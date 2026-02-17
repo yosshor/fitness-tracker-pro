@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { WorkoutSession, UserSettings } from '../types';
-import { getWorkouts, getUserSettings, saveUserSettings } from '../services/firestoreService';
+import { getWorkouts, getUserSettings, saveUserSettings } from '../services/supabaseService';
 import { useAuth } from './AuthContext';
 
 interface AppContextType {
@@ -14,8 +14,6 @@ interface AppContextType {
 
 const defaultSettings: UserSettings = {
   geminiApiKey: import.meta.env.VITE_GEMINI_API_KEY || '',
-  cloudinaryCloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || '',
-  cloudinaryUploadPreset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || '',
   language: 'en'
 };
 
@@ -32,7 +30,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsLoadingWorkouts(true);
     try {
       const result = await getWorkouts(user.id, 50);
-      setWorkouts(result.workouts);
+      setWorkouts(result);
     } catch (err) {
       console.error('Failed to load workouts:', err);
     }

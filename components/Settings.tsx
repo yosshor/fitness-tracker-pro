@@ -7,8 +7,8 @@ import { useNotification } from '../contexts/NotificationContext';
 import { Card, Button, Input, Tabs, Avatar } from './UI';
 import { SPLITS } from '../constants';
 import { uploadImage } from '../services/storageService';
-import { getWorkouts } from '../services/firestoreService';
-import { Key, Globe, Upload, Trash2, Download, Check, Cloud } from 'lucide-react';
+import { getWorkouts } from '../services/supabaseService';
+import { Key, Globe, Upload, Trash2, Download, Check } from 'lucide-react';
 
 export const Settings: React.FC = () => {
   const { user, updateProfile, logout } = useAuth();
@@ -23,13 +23,9 @@ export const Settings: React.FC = () => {
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   const [geminiKey, setGeminiKey] = useState(settings.geminiApiKey || '');
-  const [cloudName, setCloudName] = useState(settings.cloudinaryCloudName || '');
-  const [uploadPreset, setUploadPreset] = useState(settings.cloudinaryUploadPreset || '');
 
   useEffect(() => {
     setGeminiKey(settings.geminiApiKey || '');
-    setCloudName(settings.cloudinaryCloudName || '');
-    setUploadPreset(settings.cloudinaryUploadPreset || '');
   }, [settings]);
 
   const saveProfile = async () => {
@@ -38,24 +34,16 @@ export const Settings: React.FC = () => {
   };
 
   const saveApiKeys = async () => {
-    await updateSettings({
-      geminiApiKey: geminiKey,
-      cloudinaryCloudName: cloudName,
-      cloudinaryUploadPreset: uploadPreset,
-    });
+    await updateSettings({ geminiApiKey: geminiKey });
     addNotification('success', t('success'));
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
-    if (!settings.cloudinaryCloudName || !settings.cloudinaryUploadPreset) {
-      addNotification('error', 'Configure Cloudinary in API Keys first');
-      return;
-    }
     setIsUploadingPhoto(true);
     try {
-      const result = await uploadImage(file, settings.cloudinaryCloudName, settings.cloudinaryUploadPreset, 'profiles');
+      const result = await uploadImage(file, user.id, 'profiles');
       await updateProfile({ profilePhotoUrl: result.url });
       addNotification('success', 'Profile photo updated');
     } catch {
@@ -67,8 +55,8 @@ export const Settings: React.FC = () => {
   const exportData = async () => {
     if (!user) return;
     try {
-      const result = await getWorkouts(user.id, 1000);
-      const blob = new Blob([JSON.stringify(result.workouts, null, 2)], { type: 'application/json' });
+      const workouts = await getWorkouts(user.id, 1000);
+      const blob = new Blob([JSON.stringify(workouts, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -138,14 +126,6 @@ export const Settings: React.FC = () => {
             <p className="text-xs text-slate-500">{t('settingsGeminiHint')}</p>
           </div>
           <Input value={geminiKey} onChange={(e) => setGeminiKey(e.target.value)} placeholder="AIza..." type="password" />
-
-          <div className="border-t border-surface-700/50 pt-6 space-y-1">
-            <h3 className="text-white font-medium flex items-center gap-2"><Cloud size={16} className="text-accent-400" /> Cloudinary</h3>
-            <p className="text-xs text-slate-500">Required for photo uploads (free at cloudinary.com)</p>
-          </div>
-          <Input label="Cloud Name" value={cloudName} onChange={(e) => setCloudName(e.target.value)} placeholder="my-cloud-name" />
-          <Input label="Upload Preset" value={uploadPreset} onChange={(e) => setUploadPreset(e.target.value)} placeholder="my-unsigned-preset" />
-
           <Button variant="primary" onClick={saveApiKeys}><Check size={16} /> {t('settingsSave')}</Button>
         </Card>
       )}

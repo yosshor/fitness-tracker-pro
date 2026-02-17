@@ -1,18 +1,16 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useApp } from '../contexts/AppContext';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useNotification } from '../contexts/NotificationContext';
 import { ProgressPhoto } from '../types';
-import { savePhoto, getPhotos, deletePhoto } from '../services/firestoreService';
+import { savePhoto, getPhotos, deletePhoto } from '../services/supabaseService';
 import { uploadImage } from '../services/storageService';
 import { Card, Button, Modal, EmptyState } from './UI';
-import { Camera, Plus, Maximize2, Trash2, Loader2, AlertTriangle } from 'lucide-react';
+import { Camera, Plus, Maximize2, Trash2, Loader2 } from 'lucide-react';
 
 export const ProgressPhotos: React.FC = () => {
   const { user } = useAuth();
-  const { settings } = useApp();
   const { t } = useLanguage();
   const { addNotification } = useNotification();
 
@@ -24,7 +22,7 @@ export const ProgressPhotos: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const cloudinaryConfigured = !!(settings.cloudinaryCloudName && settings.cloudinaryUploadPreset);
+  const storageConfigured = true; // Supabase Storage is always available when authenticated
 
   // Load photos from Firestore on mount
   useEffect(() => {
@@ -41,18 +39,13 @@ export const ProgressPhotos: React.FC = () => {
       .finally(() => setIsLoading(false));
   }, [user]);
 
-  // Upload a blob/file to Cloudinary, then save the URL to Firestore
+  // Upload a blob/file to Supabase Storage, then save the URL to the database
   const uploadAndSave = async (file: Blob | File) => {
     if (!user) return;
 
     setIsUploading(true);
     try {
-      const result = await uploadImage(
-        file,
-        settings.cloudinaryCloudName,
-        settings.cloudinaryUploadPreset,
-        'progress'
-      );
+      const result = await uploadImage(file, user.id, 'progress');
 
       const newPhoto = await savePhoto(user.id, {
         url: result.url,
@@ -160,7 +153,7 @@ export const ProgressPhotos: React.FC = () => {
           <Button
             variant="outline"
             onClick={() => document.getElementById('photo-upload')?.click()}
-            disabled={isUploading || !cloudinaryConfigured}
+            disabled={isUploading || !storageConfigured}
           >
             {isUploading ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
             {t('photosUpload')}
@@ -168,7 +161,7 @@ export const ProgressPhotos: React.FC = () => {
           <Button
             variant="primary"
             onClick={startCamera}
-            disabled={isUploading || !cloudinaryConfigured}
+            disabled={isUploading || !storageConfigured}
           >
             <Camera size={18} />
             {t('photosCapture')}
@@ -176,21 +169,6 @@ export const ProgressPhotos: React.FC = () => {
         </div>
       </header>
 
-      {/* Cloudinary config warning */}
-      {!cloudinaryConfigured && (
-        <Card className="border-yellow-500/20 bg-yellow-500/5">
-          <div className="flex items-start gap-3">
-            <AlertTriangle size={20} className="text-yellow-400 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-yellow-300 font-medium text-sm">Image uploads not configured</p>
-              <p className="text-slate-400 text-xs mt-1">
-                Go to Settings &rarr; API Keys and add your Cloudinary Cloud Name and Upload Preset.
-                Create a free account at cloudinary.com (no credit card needed).
-              </p>
-            </div>
-          </div>
-        </Card>
-      )}
 
       {/* Upload progress indicator */}
       {isUploading && (

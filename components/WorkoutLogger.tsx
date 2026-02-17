@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useNotification } from '../contexts/NotificationContext';
-import { getExerciseHistory, saveWorkout, saveExerciseHistory } from '../services/firestoreService';
+import { getExerciseHistory, saveWorkout, saveExerciseHistory } from '../services/supabaseService';
 import { generatePersonalizedExercises } from '../services/aiService';
 import { EXERCISES as FALLBACK_EXERCISES } from '../constants';
 import { Card, Button, Input, Slider, Modal, Badge, Skeleton } from './UI';

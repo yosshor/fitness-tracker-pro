@@ -64,8 +64,6 @@ export interface UserProfile {
 
 export interface UserSettings {
   geminiApiKey: string;
-  cloudinaryCloudName: string;
-  cloudinaryUploadPreset: string;
   language: 'en' | 'he';
 }
 
