@@ -39,11 +39,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateSettings = useCallback(async (updates: Partial<UserSettings>) => {
     if (!user) return;
-    const newSettings = { ...settings, ...updates };
-    setSettings(newSettings);
-    await saveUserSettings(user.id, newSettings);
-    localStorage.setItem('ft_settings', JSON.stringify(newSettings));
-  }, [user, settings]);
+    setSettings(prev => {
+      const newSettings = { ...prev, ...updates };
+      saveUserSettings(user.id, newSettings).catch(err =>
+        console.error('Failed to save settings:', err)
+      );
+      localStorage.setItem('ft_settings', JSON.stringify(newSettings));
+      return newSettings;
+    });
+  }, [user]);
 
   // Load data when user changes
   useEffect(() => {

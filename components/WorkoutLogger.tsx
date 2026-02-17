@@ -116,7 +116,7 @@ export const WorkoutLogger: React.FC = () => {
           ? (search as MuscleGroup)
           : Object.values(MuscleGroup)[Math.floor(Math.random() * Object.values(MuscleGroup).length)];
 
-      // Get exercise history from Firestore for this muscle group
+      // Get exercise history for this muscle group
       const history = await getExerciseHistory(user.id, targetGroup);
 
       // Get recent exercise names from current library
@@ -221,7 +221,7 @@ export const WorkoutLogger: React.FC = () => {
 
     setIsSaving(true);
     try {
-      // Save the workout to Firestore
+      // Save the workout
       await saveWorkout(user.id, {
         date: new Date().toISOString(),
         rpe,
@@ -486,13 +486,13 @@ export const WorkoutLogger: React.FC = () => {
         <div className="space-y-4">
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
               <input
                 type="text"
                 placeholder={t('logSearchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-surface-800 border border-surface-700 rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500/30 transition-all"
+                className="w-full bg-surface-800 border border-surface-700 rounded-xl ps-10 pe-4 py-3 text-white focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500/30 transition-all"
               />
             </div>
             <button

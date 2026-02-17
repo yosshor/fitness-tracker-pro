@@ -14,6 +14,10 @@ declare global {
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY environment variables');
+}
+
 // Implicit flow returns tokens in the URL hash (#access_token=...).
 // Since we use HashRouter (#/route), we need to intercept the auth hash
 // BEFORE the router sees it. Extract and stash it, then let Supabase process it.

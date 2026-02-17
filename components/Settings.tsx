@@ -162,7 +162,7 @@ export const Settings: React.FC = () => {
               <h3 className="text-red-400 font-medium flex items-center gap-2"><Trash2 size={16} /> {t('settingsDeleteAccount')}</h3>
               <p className="text-xs text-slate-500 mt-1">{t('settingsDeleteDesc')}</p>
             </div>
-            <Button variant="danger">{t('delete')}</Button>
+            <Button variant="danger" onClick={() => addNotification('warning', 'Please contact support to delete your account')}>{t('delete')}</Button>
           </div>
           <div className="pt-4 border-t border-surface-700/30">
             <Button variant="danger" className="w-full" onClick={logout}>{t('authLogout')}</Button>

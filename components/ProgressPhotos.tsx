@@ -24,7 +24,7 @@ export const ProgressPhotos: React.FC = () => {
 
   const storageConfigured = true; // Supabase Storage is always available when authenticated
 
-  // Load photos from Firestore on mount
+  // Load photos on mount
   useEffect(() => {
     if (!user) return;
     setIsLoading(true);

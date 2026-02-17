@@ -55,20 +55,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     let cancelled = false;
+    let initialLoadDone = false;
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (cancelled) return;
         if (session?.user) {
           setSupabaseUser(session.user);
-          if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          // Only load profile from listener for events after initial load,
+          // to avoid duplicate fetches with initialize()
+          if (initialLoadDone && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
             await loadOrCreateProfile(session.user);
           }
         } else {
           setSupabaseUser(null);
           setUser(null);
         }
-        setIsLoading(false);
+        if (initialLoadDone) setIsLoading(false);
       }
     );
 
@@ -85,7 +88,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (err?.name === 'AbortError') return; // StrictMode cleanup
         console.error('Auth init error:', err);
       } finally {
-        if (!cancelled) setIsLoading(false);
+        if (!cancelled) {
+          initialLoadDone = true;
+          setIsLoading(false);
+        }
       }
     };
 
