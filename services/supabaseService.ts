@@ -25,7 +25,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
     .from('profiles')
     .select('*')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
 
   if (error || !data) return null;
   return {
@@ -56,7 +56,7 @@ export async function getUserSettings(userId: string): Promise<UserSettings | nu
     .from('user_settings')
     .select('*')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
 
   if (error || !data) return null;
   return {
