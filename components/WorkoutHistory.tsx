@@ -148,11 +148,10 @@ export const WorkoutHistory: React.FC = () => {
                 setFilter(mg);
                 setVisibleCount(PAGE_SIZE);
               }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
-                filter === mg
-                  ? 'bg-primary-500/10 text-primary-400 border-primary-500/30'
-                  : 'text-slate-400 hover:text-white hover:bg-surface-800 border-surface-700'
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${filter === mg
+                ? 'bg-primary-500/10 text-primary-400 border-primary-500/30'
+                : 'text-slate-400 hover:text-white hover:bg-surface-800 border-surface-700'
+                }`}
             >
               {getMuscleLabel(mg, t)}
             </button>
