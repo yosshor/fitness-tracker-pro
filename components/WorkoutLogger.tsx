@@ -7,10 +7,10 @@ import { useNotification } from '../contexts/NotificationContext';
 import { getExerciseHistory, saveWorkout, saveExerciseHistory } from '../services/supabaseService';
 import { generatePersonalizedExercises } from '../services/aiService';
 import { EXERCISES as FALLBACK_EXERCISES } from '../constants';
-import { Card, Button, Input, Slider, Modal, Badge, Skeleton } from './UI';
+import { Card, Button, Input, Slider, Modal, Badge, Skeleton, FilterChip, NumberStepper } from './UI';
 import {
   Plus, Trash2, Save, X, Search, ChevronRight, PlayCircle,
-  Sparkles, RefreshCw, Zap, Info, Minus
+  Sparkles, RefreshCw, Zap, Info
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -36,6 +36,7 @@ export const WorkoutLogger: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [expandedInfo, setExpandedInfo] = useState<number | null>(null);
+  const [filterMuscle, setFilterMuscle] = useState<string | null>(null);
 
   // Load static and local exercises
   useEffect(() => {
@@ -271,8 +272,35 @@ export const WorkoutLogger: React.FC = () => {
     return `${entry.bestWeight} ${t('kg')} × ${entry.bestReps} ${t('logRepsShort')}`;
   };
 
+  const muscleColor = (muscle: string) => {
+    const colors: Record<string, string> = {
+      Chest: 'from-blue-500/20 to-blue-500/5 border-blue-500/30',
+      Back: 'from-emerald-500/20 to-emerald-500/5 border-emerald-500/30',
+      Legs: 'from-purple-500/20 to-purple-500/5 border-purple-500/30',
+      Shoulders: 'from-amber-500/20 to-amber-500/5 border-amber-500/30',
+      Arms: 'from-rose-500/20 to-rose-500/5 border-rose-500/30',
+      Core: 'from-cyan-500/20 to-cyan-500/5 border-cyan-500/30',
+    };
+    return colors[muscle] || 'from-primary-500/20 to-primary-500/5 border-primary-500/30';
+  };
+
+  const muscleBarColor = (muscle: string) => {
+    const colors: Record<string, string> = {
+      Chest: 'bg-blue-500', Back: 'bg-emerald-500', Legs: 'bg-purple-500',
+      Shoulders: 'bg-amber-500', Arms: 'bg-rose-500', Core: 'bg-cyan-500',
+    };
+    return colors[muscle] || 'bg-primary-500';
+  };
+
+  // Muscle group filter for exercise picker
+  const muscleGroups = [...new Set(library.map(e => e.muscleGroup))];
+
+  const modalFilteredExercises = filteredExercises.filter(
+    e => !filterMuscle || e.muscleGroup === filterMuscle
+  );
+
   return (
-    <div className="space-y-6 animate-fade-in-up">
+    <div className="space-y-6">
       {/* Header */}
       <header className="flex items-center justify-between border-b border-surface-800 pb-4">
         <div>
@@ -290,14 +318,15 @@ export const WorkoutLogger: React.FC = () => {
       </header>
 
       {/* Exercise List */}
-      <div className="space-y-4">
+      <div className="space-y-5">
         {exercises.map((ex, exIdx) => (
-          <Card key={exIdx} className="border-surface-800 p-4 relative overflow-hidden">
-            <div className="flex justify-between items-start mb-4 border-b border-surface-800 pb-2">
-              <div className="flex items-start gap-3">
-                <div className="mt-1">
+          <Card key={exIdx} className="!p-0 relative overflow-hidden animate-fade-in-up">
+            {/* Colored header */}
+            <div className={`bg-gradient-to-r ${muscleColor(ex.muscleGroup)} border-b p-4`}>
+              <div className="flex justify-between items-start">
+                <div>
                   <h3 className="text-lg font-semibold text-white">{ex.name}</h3>
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <div className="flex items-center gap-2 mt-2 flex-wrap">
                     <Badge variant="accent">{ex.muscleGroup}</Badge>
                     {ex.suggestedReps && (
                       <Badge variant="primary">
@@ -311,18 +340,18 @@ export const WorkoutLogger: React.FC = () => {
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-1.5">
                   {ex.description && (
                     <button
                       onClick={() => setExpandedInfo(expandedInfo === exIdx ? null : exIdx)}
-                      className={`p-2 rounded-full transition-all ${
+                      className={`p-2 rounded-xl transition-all btn-press ${
                         expandedInfo === exIdx
-                          ? 'bg-primary-500 text-white'
-                          : 'bg-surface-800 text-slate-400 hover:text-white'
+                          ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20'
+                          : 'bg-surface-800/80 text-slate-400 hover:text-white hover:bg-surface-700'
                       }`}
                       title={t('logInfo')}
                     >
-                      <Info size={18} />
+                      <Info size={16} />
                     </button>
                   )}
                   {ex.tutorialUrl && (
@@ -330,25 +359,25 @@ export const WorkoutLogger: React.FC = () => {
                       href={ex.tutorialUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 rounded-full bg-primary-500/10 text-primary-400 hover:bg-primary-500 hover:text-white transition-all"
+                      className="p-2 rounded-xl bg-surface-800/80 text-primary-400 hover:bg-primary-500 hover:text-white transition-all btn-press"
                       title={t('logTutorial')}
                     >
-                      <PlayCircle size={18} />
+                      <PlayCircle size={16} />
                     </a>
                   )}
+                  <button
+                    onClick={() => removeExercise(exIdx)}
+                    className="p-2 rounded-xl bg-surface-800/80 text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all btn-press"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               </div>
-              <button
-                onClick={() => removeExercise(exIdx)}
-                className="text-slate-600 hover:text-red-400 transition-colors mt-1"
-              >
-                <Trash2 size={18} />
-              </button>
             </div>
 
             {/* Expanded description */}
             {expandedInfo === exIdx && ex.description && (
-              <div className="mb-4 p-3 bg-primary-500/5 border border-primary-500/20 rounded-xl animate-slide-up">
+              <div className="mx-4 mt-4 p-3 bg-primary-500/5 border border-primary-500/20 rounded-xl animate-expand">
                 <p className="text-xs text-primary-400 font-medium mb-1 flex items-center gap-2">
                   <Sparkles size={12} /> {t('logInfo')}
                 </p>
@@ -357,8 +386,8 @@ export const WorkoutLogger: React.FC = () => {
             )}
 
             {/* Sets grid */}
-            <div className="space-y-2">
-              <div className="grid grid-cols-12 gap-2 text-[10px] font-medium text-slate-500 uppercase tracking-wider px-2">
+            <div className="p-4 space-y-3">
+              <div className="grid grid-cols-12 gap-3 text-[10px] font-medium text-slate-500 uppercase tracking-wider px-1">
                 <div className="col-span-1">{t('logSet')}</div>
                 <div className="col-span-5 text-center">{t('logWeight')}</div>
                 <div className="col-span-5 text-center">{t('logReps')}</div>
@@ -368,63 +397,41 @@ export const WorkoutLogger: React.FC = () => {
               {ex.sets.map((set, setIdx) => (
                 <div
                   key={setIdx}
-                  className="grid grid-cols-12 gap-2 items-center bg-surface-800/30 p-2 rounded-lg group"
+                  className="grid grid-cols-12 gap-3 items-center bg-surface-800/30 hover:bg-surface-800/50 p-2.5 rounded-xl group transition-colors"
                 >
-                  <div className="col-span-1 font-semibold text-primary-400 text-center text-sm">
-                    {setIdx + 1}
+                  <div className="col-span-1 flex justify-center">
+                    <span className="w-7 h-7 rounded-lg bg-primary-500/10 text-primary-400 font-semibold text-sm flex items-center justify-center">
+                      {setIdx + 1}
+                    </span>
                   </div>
 
-                  {/* Weight with +/- buttons */}
-                  <div className="col-span-5 flex items-center gap-1">
-                    <button
-                      onClick={() => adjustValue(exIdx, setIdx, 'weight', -1)}
-                      className="p-1.5 rounded-lg bg-surface-700 text-slate-400 hover:text-white hover:bg-surface-600 transition-all shrink-0"
-                    >
-                      <Minus size={14} />
-                    </button>
-                    <input
-                      type="number"
-                      value={set.weight || ''}
+                  {/* Weight */}
+                  <div className="col-span-5">
+                    <NumberStepper
+                      value={set.weight}
                       placeholder={ex.suggestedWeightRange || '0'}
-                      onChange={(e) => updateSet(exIdx, setIdx, 'weight', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-surface-900 border border-surface-700 rounded-lg p-2 text-center text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500/30 transition-all"
+                      onDecrement={() => adjustValue(exIdx, setIdx, 'weight', -1)}
+                      onIncrement={() => adjustValue(exIdx, setIdx, 'weight', 1)}
+                      onChange={(val) => updateSet(exIdx, setIdx, 'weight', val)}
                     />
-                    <button
-                      onClick={() => adjustValue(exIdx, setIdx, 'weight', 1)}
-                      className="p-1.5 rounded-lg bg-surface-700 text-slate-400 hover:text-white hover:bg-surface-600 transition-all shrink-0"
-                    >
-                      <Plus size={14} />
-                    </button>
                   </div>
 
-                  {/* Reps with +/- buttons */}
-                  <div className="col-span-5 flex items-center gap-1">
-                    <button
-                      onClick={() => adjustValue(exIdx, setIdx, 'reps', -1)}
-                      className="p-1.5 rounded-lg bg-surface-700 text-slate-400 hover:text-white hover:bg-surface-600 transition-all shrink-0"
-                    >
-                      <Minus size={14} />
-                    </button>
-                    <input
-                      type="number"
-                      value={set.reps || ''}
+                  {/* Reps */}
+                  <div className="col-span-5">
+                    <NumberStepper
+                      value={set.reps}
                       placeholder={ex.suggestedReps?.split('-')[0] || '0'}
-                      onChange={(e) => updateSet(exIdx, setIdx, 'reps', parseInt(e.target.value) || 0)}
-                      className="w-full bg-surface-900 border border-surface-700 rounded-lg p-2 text-center text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500/30 transition-all"
+                      onDecrement={() => adjustValue(exIdx, setIdx, 'reps', -1)}
+                      onIncrement={() => adjustValue(exIdx, setIdx, 'reps', 1)}
+                      onChange={(val) => updateSet(exIdx, setIdx, 'reps', val)}
                     />
-                    <button
-                      onClick={() => adjustValue(exIdx, setIdx, 'reps', 1)}
-                      className="p-1.5 rounded-lg bg-surface-700 text-slate-400 hover:text-white hover:bg-surface-600 transition-all shrink-0"
-                    >
-                      <Plus size={14} />
-                    </button>
                   </div>
 
                   {/* Remove set */}
-                  <div className="col-span-1 text-center">
+                  <div className="col-span-1 flex justify-center">
                     <button
                       onClick={() => removeSet(exIdx, setIdx)}
-                      className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 transition-all"
+                      className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -434,7 +441,7 @@ export const WorkoutLogger: React.FC = () => {
 
               <button
                 onClick={() => addSet(exIdx)}
-                className="w-full py-2 border border-dashed border-surface-700 rounded-lg text-slate-500 hover:text-primary-400 hover:border-primary-500 transition-all text-xs font-medium flex items-center justify-center gap-2"
+                className="w-full py-3 border border-dashed border-surface-700 rounded-xl text-slate-500 hover:text-primary-400 hover:border-primary-500/50 hover:bg-primary-500/5 transition-all text-xs font-medium flex items-center justify-center gap-2 btn-press"
               >
                 <Plus size={14} /> {t('logAddSet')}
               </button>
@@ -474,7 +481,7 @@ export const WorkoutLogger: React.FC = () => {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder={t('logNotesPlaceholder')}
-                className="w-full h-24 bg-surface-800/50 border border-surface-700 rounded-lg p-3 text-white focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/30 text-sm resize-none transition-all"
+                className="w-full h-24 bg-surface-800/50 border border-surface-700 rounded-xl p-3 text-white focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/30 text-sm resize-none transition-all"
               />
             </div>
           </div>
@@ -482,7 +489,7 @@ export const WorkoutLogger: React.FC = () => {
       )}
 
       {/* Add exercise modal */}
-      <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title={t('logLibrary')}>
+      <Modal isOpen={showAddModal} onClose={() => { setShowAddModal(false); setSearch(''); setFilterMuscle(null); }} title={t('logLibrary')} size="lg">
         <div className="space-y-4">
           <div className="flex gap-2">
             <div className="relative flex-1">
@@ -492,13 +499,22 @@ export const WorkoutLogger: React.FC = () => {
                 placeholder={t('logSearchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-surface-800 border border-surface-700 rounded-xl ps-10 pe-4 py-3 text-white focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500/30 transition-all"
+                autoFocus
+                className="w-full bg-surface-800 border border-surface-700 rounded-xl ps-10 pe-10 py-3 text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/30 transition-all"
               />
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              )}
             </div>
             <button
               onClick={syncNeuralDatabase}
               disabled={isSyncing}
-              className={`p-3 rounded-xl border border-primary-500/50 text-primary-400 hover:bg-primary-500/10 transition-all ${
+              className={`p-3 rounded-xl border border-primary-500/50 text-primary-400 hover:bg-primary-500/10 transition-all btn-press ${
                 isSyncing ? 'animate-spin opacity-50' : ''
               }`}
               title={t('logSyncAi')}
@@ -507,9 +523,25 @@ export const WorkoutLogger: React.FC = () => {
             </button>
           </div>
 
+          {/* Muscle group filter chips */}
+          <div className="flex gap-2 flex-wrap">
+            <FilterChip active={!filterMuscle} onClick={() => setFilterMuscle(null)}>
+              All ({filteredExercises.length})
+            </FilterChip>
+            {muscleGroups.map(mg => {
+              const count = filteredExercises.filter(e => e.muscleGroup === mg).length;
+              if (count === 0) return null;
+              return (
+                <FilterChip key={mg} active={filterMuscle === mg} onClick={() => setFilterMuscle(filterMuscle === mg ? null : mg)}>
+                  {mg} ({count})
+                </FilterChip>
+              );
+            })}
+          </div>
+
           {isSyncing && (
             <div className="space-y-3">
-              <div className="p-4 bg-primary-500/5 border border-primary-500/20 rounded-xl flex items-center gap-3">
+              <div className="p-4 bg-primary-500/5 border border-primary-500/20 rounded-xl flex items-center gap-3 animate-pulse-glow">
                 <Sparkles className="text-primary-400" size={20} />
                 <p className="text-xs text-primary-400 font-medium">{t('logSyncing')}</p>
               </div>
@@ -518,42 +550,47 @@ export const WorkoutLogger: React.FC = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto pr-2">
-            {filteredExercises.map((ex) => (
+          <div className="grid grid-cols-1 gap-2 max-h-[400px] overflow-y-auto pe-1">
+            {modalFilteredExercises.map((ex, i) => (
               <button
                 key={ex.id}
                 onClick={() => addExercise(ex)}
-                className="flex flex-col p-3 rounded-xl hover:bg-surface-800 border border-transparent hover:border-surface-700 transition-all text-left group"
+                className={`flex items-start gap-3 p-3 rounded-xl hover:bg-surface-800 border border-transparent hover:border-surface-700 transition-all text-left group animate-fade-in-up stagger-${Math.min(i + 1, 8)}`}
               >
-                <div className="flex items-center justify-between w-full mb-1">
-                  <div className="flex items-center gap-2">
-                    <p className="text-white font-medium">{ex.name}</p>
-                    {ex.id.startsWith('ai-') && (
-                      <Sparkles size={12} className="text-primary-400" />
+                <div className={`w-1 self-stretch rounded-full ${muscleBarColor(ex.muscleGroup)} shrink-0`} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between w-full mb-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-white font-medium text-sm">{ex.name}</p>
+                      {ex.id.startsWith('ai-') && (
+                        <Sparkles size={12} className="text-primary-400" />
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {ex.tutorialUrl && <PlayCircle size={14} className="text-primary-400/50" />}
+                      <ChevronRight size={16} className="text-slate-600 group-hover:text-primary-400 group-hover:translate-x-1 transition-all" />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <Badge variant="accent" className="text-[10px]">{ex.muscleGroup}</Badge>
+                    {ex.description && (
+                      <p className="text-[11px] text-slate-500 line-clamp-1 leading-tight pe-4">
+                        {ex.description}
+                      </p>
                     )}
+                    <div className="flex items-center gap-3">
+                      {ex.suggestedReps && (
+                        <p className="text-[10px] text-slate-400">
+                          {ex.suggestedSets} {t('sets')} x {ex.suggestedReps} @ {ex.suggestedWeightRange}
+                        </p>
+                      )}
+                      {getLastTimeHint(ex.name) && (
+                        <p className="text-[10px] text-highlight-400 flex items-center gap-1">
+                          <Zap size={10} /> {getLastTimeHint(ex.name)}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {ex.tutorialUrl && <PlayCircle size={16} className="text-primary-400/50" />}
-                    <ChevronRight size={18} className="text-slate-600 group-hover:text-primary-400" />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <Badge variant="accent" className="text-[10px]">{ex.muscleGroup}</Badge>
-                  {ex.description && (
-                    <p className="text-[11px] text-slate-500 line-clamp-2 leading-tight pr-4">
-                      {ex.description}
-                    </p>
-                  )}
-                  {ex.suggestedReps && (
-                    <p className="text-[10px] text-slate-400 italic border-t border-surface-800 mt-1 pt-1">
-                      {ex.suggestedSets} {t('sets')} x {ex.suggestedReps} @ {ex.suggestedWeightRange}
-                    </p>
-                  )}
-                  {getLastTimeHint(ex.name) && (
-                    <p className="text-[10px] text-highlight-400 flex items-center gap-1">
-                      <Zap size={10} /> {t('logLastTime')}: {getLastTimeHint(ex.name)}
-                    </p>
-                  )}
                 </div>
               </button>
             ))}

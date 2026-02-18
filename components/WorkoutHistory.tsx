@@ -4,12 +4,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useNotification } from '../contexts/NotificationContext';
-import { Card, Badge, Button, EmptyState, Input } from './UI';
+import { Card, Badge, Button, EmptyState, Input, FilterChip } from './UI';
 import { MuscleGroup, WorkoutSession } from '../types';
 import { useNavigate } from 'react-router-dom';
 import {
-  Clock, Search, ChevronDown, ChevronUp, Dumbbell,
-  RotateCcw, Filter, TrendingUp
+  Clock, Search, ChevronDown, ChevronUp, Dumbbell, RotateCcw
 } from 'lucide-react';
 
 const PAGE_SIZE = 20;
@@ -124,7 +123,7 @@ export const WorkoutHistory: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in-up">
+    <div className="space-y-8">
       {/* Header */}
       <header>
         <p className="text-sm text-slate-400 mb-1">{t('navHistory')}</p>
@@ -142,19 +141,13 @@ export const WorkoutHistory: React.FC = () => {
 
         <div className="flex gap-2 flex-wrap">
           {MUSCLE_GROUPS.map((mg) => (
-            <button
+            <FilterChip
               key={mg ?? 'all'}
-              onClick={() => {
-                setFilter(mg);
-                setVisibleCount(PAGE_SIZE);
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${filter === mg
-                ? 'bg-primary-500/10 text-primary-400 border-primary-500/30'
-                : 'text-slate-400 hover:text-white hover:bg-surface-800 border-surface-700'
-                }`}
+              active={filter === mg}
+              onClick={() => { setFilter(mg); setVisibleCount(PAGE_SIZE); }}
             >
               {getMuscleLabel(mg, t)}
-            </button>
+            </FilterChip>
           ))}
         </div>
       </div>
@@ -185,7 +178,7 @@ export const WorkoutHistory: React.FC = () => {
             const uniqueMuscles = [...new Set(workout.exercises.map((ex) => ex.muscleGroup))];
 
             return (
-              <Card key={workout.id} className="p-0 overflow-hidden">
+              <Card key={workout.id} hover className="p-0 overflow-hidden">
                 {/* Summary row */}
                 <button
                   onClick={() => handleToggle(workout.id)}
@@ -232,7 +225,7 @@ export const WorkoutHistory: React.FC = () => {
 
                 {/* Expanded Details */}
                 {isExpanded && (
-                  <div className="border-t border-surface-700 bg-surface-900/50 p-5 space-y-4 animate-slide-up">
+                  <div className="border-t border-surface-700 bg-surface-900/50 p-5 space-y-4 animate-expand">
                     {workout.exercises.map((exercise, exIdx) => (
                       <div key={exIdx} className="space-y-2">
                         <div className="flex items-center gap-2">
