@@ -53,14 +53,15 @@ const Navigation: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium ${
                   active
                     ? 'bg-primary-500/10 text-primary-400 border border-primary-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-surface-800 border border-transparent'
+                    : 'text-slate-400 hover:text-white hover:bg-surface-800 hover:translate-x-1 border border-transparent'
                 }`}
               >
                 <Icon size={20} />
                 {item.label}
+                {active && <div className="ms-auto w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse" />}
               </Link>
             );
           })}
@@ -108,17 +109,37 @@ const Navigation: React.FC = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
-                active ? 'text-primary-400' : 'text-slate-500'
+              className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all duration-200 ${
+                active ? 'text-primary-400 scale-110' : 'text-slate-500'
               }`}
             >
               <Icon size={20} />
               <span className="text-[10px] font-medium">{item.label}</span>
+              {active && <div className="w-1 h-1 rounded-full bg-primary-400" />}
             </Link>
           );
         })}
       </nav>
     </>
+  );
+};
+
+const AnimatedRoutes: React.FC = () => {
+  const location = useLocation();
+  return (
+    <div key={location.pathname} className="animate-fade-in-up">
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/workout" element={<WorkoutLogger />} />
+        <Route path="/generate" element={<WorkoutGenerator />} />
+        <Route path="/photos" element={<ProgressPhotos />} />
+        <Route path="/stats" element={<Analytics />} />
+        <Route path="/history" element={<WorkoutHistory />} />
+        <Route path="/chat" element={<FitnessChat />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </div>
   );
 };
 
@@ -128,7 +149,7 @@ const App: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-surface-950 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-4 animate-fade-in">
           <div className="w-10 h-10 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-slate-400">Loading...</p>
         </div>
@@ -151,17 +172,7 @@ const App: React.FC = () => {
         <Navigation />
 
         <main className="p-4 md:p-8 max-w-6xl mx-auto">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/workout" element={<WorkoutLogger />} />
-            <Route path="/generate" element={<WorkoutGenerator />} />
-            <Route path="/photos" element={<ProgressPhotos />} />
-            <Route path="/stats" element={<Analytics />} />
-            <Route path="/history" element={<WorkoutHistory />} />
-            <Route path="/chat" element={<FitnessChat />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <AnimatedRoutes />
         </main>
       </div>
       <NotificationToast />
