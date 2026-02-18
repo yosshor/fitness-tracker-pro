@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useNotification } from '../contexts/NotificationContext';
-import { Card, Button, Input, Tabs, Avatar } from './UI';
+import { Card, Button, Input, Tabs, Avatar, SelectionButton } from './UI';
 import { SPLITS } from '../constants';
 import { uploadImage } from '../services/storageService';
 import { getWorkouts } from '../services/supabaseService';
@@ -87,7 +87,7 @@ export const Settings: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
+    <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-semibold text-white">{t('settingsTitle')}</h1>
       </header>
@@ -113,10 +113,9 @@ export const Settings: React.FC = () => {
             <label className="text-xs font-medium text-slate-400 ms-1 block mb-2">{t('settingsSplit')}</label>
             <div className="grid grid-cols-2 gap-2">
               {SPLITS.map(split => (
-                <button key={split.id} onClick={() => setSelectedSplit(split.id as any)}
-                  className={`p-3 rounded-xl border text-sm transition-all text-start ${selectedSplit === split.id ? 'border-primary-500 bg-primary-500/10 text-primary-400' : 'border-surface-700 text-slate-500 hover:border-surface-600'}`}>
+                <SelectionButton key={split.id} active={selectedSplit === split.id} onClick={() => setSelectedSplit(split.id as any)}>
                   {split.name}
-                </button>
+                </SelectionButton>
               ))}
             </div>
           </div>
@@ -145,12 +144,12 @@ export const Settings: React.FC = () => {
           <h3 className="text-white font-medium flex items-center gap-2"><Globe size={16} className="text-primary-400" /> {t('settingsLanguage')}</h3>
           <div className="grid grid-cols-2 gap-3">
             <button onClick={() => setLanguage('en')}
-              className={`p-4 rounded-xl border text-center transition-all ${language === 'en' ? 'border-primary-500 bg-primary-500/10 text-primary-400' : 'border-surface-700 text-slate-400 hover:border-surface-600'}`}>
+              className={`p-4 rounded-xl border text-center transition-all btn-press ${language === 'en' ? 'border-primary-500 bg-primary-500/10 text-primary-400 scale-[1.02] shadow-lg shadow-primary-500/10' : 'border-surface-700 text-slate-400 hover:border-surface-600'}`}>
               <span className="text-2xl block mb-1">EN</span>
               <span className="text-sm font-medium">English</span>
             </button>
             <button onClick={() => setLanguage('he')}
-              className={`p-4 rounded-xl border text-center transition-all ${language === 'he' ? 'border-primary-500 bg-primary-500/10 text-primary-400' : 'border-surface-700 text-slate-400 hover:border-surface-600'}`}>
+              className={`p-4 rounded-xl border text-center transition-all btn-press ${language === 'he' ? 'border-primary-500 bg-primary-500/10 text-primary-400 scale-[1.02] shadow-lg shadow-primary-500/10' : 'border-surface-700 text-slate-400 hover:border-surface-600'}`}>
               <span className="text-2xl block mb-1">עב</span>
               <span className="text-sm font-medium">עברית</span>
             </button>
@@ -160,14 +159,14 @@ export const Settings: React.FC = () => {
 
       {activeTab === 'data' && (
         <Card className="space-y-6">
-          <div className="flex items-center justify-between p-4 bg-surface-800/50 rounded-xl border border-surface-700/30">
+          <div className="flex items-center justify-between p-4 bg-surface-800/50 rounded-xl border border-surface-700/30 card-hover glass-card-hover">
             <div>
               <h3 className="text-white font-medium flex items-center gap-2"><Download size={16} /> {t('settingsExportData')}</h3>
               <p className="text-xs text-slate-500 mt-1">{t('settingsExportDesc')}</p>
             </div>
             <Button variant="outline" onClick={exportData}>Export</Button>
           </div>
-          <div className="flex items-center justify-between p-4 bg-red-500/5 rounded-xl border border-red-500/10">
+          <div className="flex items-center justify-between p-4 bg-red-500/5 rounded-xl border border-red-500/10 card-hover">
             <div>
               <h3 className="text-red-400 font-medium flex items-center gap-2"><Trash2 size={16} /> {t('settingsDeleteAccount')}</h3>
               <p className="text-xs text-slate-500 mt-1">{t('settingsDeleteDesc')}</p>

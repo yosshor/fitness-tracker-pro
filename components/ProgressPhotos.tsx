@@ -135,7 +135,7 @@ export const ProgressPhotos: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in-up">
+    <div className="space-y-8">
       {/* Header */}
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
@@ -194,7 +194,7 @@ export const ProgressPhotos: React.FC = () => {
           {photos.map((photo) => (
             <div
               key={photo.id}
-              className="relative aspect-[3/4] group cursor-pointer overflow-hidden rounded-2xl border border-surface-700 hover:border-primary-500/40 transition-all"
+              className="relative aspect-[3/4] group cursor-pointer overflow-hidden rounded-2xl border border-surface-700 hover:border-primary-500/40 hover:scale-[1.02] transition-all duration-300"
               onClick={() => setSelectedPhoto(photo)}
             >
               <img

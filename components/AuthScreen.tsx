@@ -68,7 +68,7 @@ export const AuthScreen: React.FC = () => {
         <LanguageToggle language={language} onToggle={toggleLanguage} />
       </div>
 
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-display font-bold text-white mb-1">
             Fitness Tracker <span className="text-primary-400">Pro</span>
@@ -76,9 +76,11 @@ export const AuthScreen: React.FC = () => {
           <p className="text-slate-500 text-sm">{t('appTagline')}</p>
         </div>
 
-        <Card className="border-surface-700/50">
+        <div className="relative">
+          <div className="absolute -inset-1 bg-gradient-to-r from-primary-500/20 via-highlight-500/20 to-accent-500/20 rounded-3xl blur-xl opacity-60" />
+          <Card className="relative border-surface-700/50">
           <div className="text-center mb-6">
-            <div className="w-14 h-14 rounded-2xl bg-primary-500/10 flex items-center justify-center mx-auto mb-4">
+            <div className="w-14 h-14 rounded-2xl bg-primary-500/10 flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
               <Lock className="w-7 h-7 text-primary-400" />
             </div>
             <h2 className="text-xl font-semibold text-white">
@@ -219,6 +221,7 @@ export const AuthScreen: React.FC = () => {
             </div>
           </div>
         </Card>
+        </div>
       </div>
     </div>
   );

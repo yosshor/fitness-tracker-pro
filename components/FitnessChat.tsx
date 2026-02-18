@@ -144,7 +144,7 @@ Use emojis minimally. Give structured answers with bullet points when appropriat
   const suggestions = SUGGESTED_QUESTIONS[language] || SUGGESTED_QUESTIONS.en;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] md:h-[calc(100vh-6rem)] animate-fade-in-up">
+    <div className="flex flex-col h-[calc(100vh-8rem)] md:h-[calc(100vh-6rem)]">
       {/* Header */}
       <header className="flex items-center justify-between mb-4">
         <div>
@@ -173,7 +173,7 @@ Use emojis minimally. Give structured answers with bullet points when appropriat
                 <button
                   key={i}
                   onClick={() => sendMessage(q)}
-                  className="text-start text-sm p-3 rounded-xl border border-surface-700 text-slate-400 hover:text-white hover:border-primary-500/40 hover:bg-primary-500/5 transition-all"
+                  className={`text-start text-sm p-3 rounded-xl border border-surface-700 text-slate-400 hover:text-white hover:border-primary-500/40 hover:bg-primary-500/5 transition-all btn-press animate-fade-in-up stagger-${Math.min(i + 1, 6)}`}
                 >
                   {q}
                 </button>
@@ -185,7 +185,7 @@ Use emojis minimally. Give structured answers with bullet points when appropriat
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex gap-3 animate-slide-up ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.role === 'assistant' && (
                   <div className="w-8 h-8 rounded-lg bg-primary-500/10 flex items-center justify-center shrink-0 mt-1">

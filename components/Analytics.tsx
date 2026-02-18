@@ -7,6 +7,22 @@ import { Card, Tabs, Skeleton } from './UI';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { BarChart3, Target, Activity, Flame } from 'lucide-react';
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="glass-card rounded-xl p-3 border border-surface-700/50 shadow-xl text-xs">
+      <p className="text-slate-400 mb-1.5 font-medium">{label}</p>
+      {payload.map((entry: any, i: number) => (
+        <div key={i} className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
+          <span className="text-slate-300 capitalize">{entry.dataKey}:</span>
+          <span className="text-white font-semibold">{typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export const Analytics: React.FC = () => {
   const { user } = useAuth();
   const { workouts, isLoadingWorkouts } = useApp();
@@ -68,14 +84,14 @@ export const Analytics: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
+    <div className="space-y-6">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold text-white">{t('statsTitle')}</h1>
         <Tabs tabs={timeRangeTabs} activeTab={timeRange} onChange={setTimeRange} />
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="flex items-center gap-4 border-s-4 border-primary-500">
+        <Card hover className="flex items-center gap-4 border-s-4 border-primary-500 animate-fade-in-up stagger-1">
           <div className="w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center text-primary-400">
             <Flame size={24} />
           </div>
@@ -84,7 +100,7 @@ export const Analytics: React.FC = () => {
             <p className="text-2xl font-semibold text-white">{stats.bestLift} <span className="text-xs text-slate-400">{t('kg')}</span></p>
           </div>
         </Card>
-        <Card className="flex items-center gap-4 border-s-4 border-accent-500">
+        <Card hover className="flex items-center gap-4 border-s-4 border-accent-500 animate-fade-in-up stagger-2">
           <div className="w-12 h-12 rounded-xl bg-accent-500/10 flex items-center justify-center text-accent-400">
             <Activity size={24} />
           </div>
@@ -93,7 +109,7 @@ export const Analytics: React.FC = () => {
             <p className="text-2xl font-semibold text-white">{stats.avgRpe} <span className="text-xs text-slate-400">{t('rpe')}</span></p>
           </div>
         </Card>
-        <Card className="flex items-center gap-4 border-s-4 border-highlight-500">
+        <Card hover className="flex items-center gap-4 border-s-4 border-highlight-500 animate-fade-in-up stagger-3">
           <div className="w-12 h-12 rounded-xl bg-highlight-500/10 flex items-center justify-center text-highlight-400">
             <Target size={24} />
           </div>
@@ -122,10 +138,7 @@ export const Analytics: React.FC = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" vertical={false} />
                   <XAxis dataKey="date" stroke="#6b7280" fontSize={10} />
                   <YAxis stroke="#6b7280" fontSize={10} axisLine={false} tickLine={false} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', borderRadius: '12px', fontSize: '12px' }}
-                    itemStyle={{ color: '#60a5fa' }}
-                  />
+                  <Tooltip content={<CustomTooltip />} />
                   <Area type="monotone" dataKey="weight" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorWeight)" />
                 </AreaChart>
               </ResponsiveContainer>
@@ -147,7 +160,7 @@ export const Analytics: React.FC = () => {
                   <XAxis dataKey="date" stroke="#6b7280" fontSize={10} />
                   <YAxis yAxisId="left" stroke="#10b981" fontSize={10} />
                   <YAxis yAxisId="right" orientation="right" stroke="#8b5cf6" fontSize={10} />
-                  <Tooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', borderRadius: '12px', fontSize: '12px' }} />
+                  <Tooltip content={<CustomTooltip />} />
                   <Line yAxisId="left" type="monotone" dataKey="rpe" stroke="#10b981" strokeWidth={2} dot={{ fill: '#10b981', r: 3 }} />
                   <Line yAxisId="right" type="monotone" dataKey="volume" stroke="#8b5cf6" strokeWidth={2} dot={{ fill: '#8b5cf6', r: 3 }} />
                 </LineChart>

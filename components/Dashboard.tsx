@@ -21,7 +21,7 @@ export const Dashboard: React.FC = () => {
     : '0.0';
 
   return (
-    <div className="space-y-8 animate-fade-in-up">
+    <div className="space-y-8">
       {/* Header */}
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
@@ -49,8 +49,8 @@ export const Dashboard: React.FC = () => {
         ) : (
           <>
             {/* Current Split */}
-            <Card className="border-s-4 border-primary-500 relative overflow-hidden group">
-              <div className="absolute top-0 end-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Card hover className="border-s-4 border-primary-500 relative overflow-hidden group animate-fade-in-up stagger-1">
+              <div className="absolute top-0 end-0 p-4 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-300">
                 <Trophy className="w-16 h-16 text-primary-400" />
               </div>
               <p className="text-xs text-slate-400 mb-1">{t('dashCurrentSplit')}</p>
@@ -61,8 +61,8 @@ export const Dashboard: React.FC = () => {
             </Card>
 
             {/* Total Sessions */}
-            <Card className="border-s-4 border-accent-500 relative overflow-hidden group">
-              <div className="absolute top-0 end-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Card hover className="border-s-4 border-accent-500 relative overflow-hidden group animate-fade-in-up stagger-2">
+              <div className="absolute top-0 end-0 p-4 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-300">
                 <Clock className="w-16 h-16 text-accent-400" />
               </div>
               <p className="text-xs text-slate-400 mb-1">{t('dashSessions')}</p>
@@ -73,8 +73,8 @@ export const Dashboard: React.FC = () => {
             </Card>
 
             {/* Avg RPE */}
-            <Card className="border-s-4 border-highlight-500 relative overflow-hidden group">
-              <div className="absolute top-0 end-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Card hover className="border-s-4 border-highlight-500 relative overflow-hidden group animate-fade-in-up stagger-3">
+              <div className="absolute top-0 end-0 p-4 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-300">
                 <Zap className="w-16 h-16 text-highlight-400" />
               </div>
               <p className="text-xs text-slate-400 mb-1">{t('dashAvgRpe')}</p>
@@ -121,6 +121,7 @@ export const Dashboard: React.FC = () => {
               recentWorkouts.map((workout) => (
                 <Card
                   key={workout.id}
+                  hover
                   className="p-4 flex items-center justify-between hover:bg-surface-800/80 transition-colors border-surface-700"
                 >
                   <div className="flex items-center gap-4">
@@ -164,14 +165,14 @@ export const Dashboard: React.FC = () => {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Link to="/generate" className="block">
-              <div className="p-6 h-full rounded-2xl bg-gradient-to-br from-primary-500/10 to-transparent border border-primary-500/20 hover:border-primary-500/40 transition-all group">
+              <div className="p-6 h-full rounded-2xl bg-gradient-to-br from-primary-500/10 to-transparent border border-primary-500/20 hover:border-primary-500/40 hover:scale-[1.02] transition-all group">
                 <Sparkles className="text-primary-400 mb-4 transition-transform group-hover:scale-110" />
                 <h4 className="text-white font-medium">{t('dashGeneratePlan')}</h4>
                 <p className="text-xs text-slate-400 mt-1">{t('dashNewRoutine')}</p>
               </div>
             </Link>
             <Link to="/workout" className="block">
-              <div className="p-6 h-full rounded-2xl bg-gradient-to-br from-accent-500/10 to-transparent border border-accent-500/20 hover:border-accent-500/40 transition-all group">
+              <div className="p-6 h-full rounded-2xl bg-gradient-to-br from-accent-500/10 to-transparent border border-accent-500/20 hover:border-accent-500/40 hover:scale-[1.02] transition-all group">
                 <Dumbbell className="text-accent-400 mb-4 transition-transform group-hover:scale-110" />
                 <h4 className="text-white font-medium">{t('dashStartWorkout')}</h4>
                 <p className="text-xs text-slate-400 mt-1">{t('dashLogSession')}</p>

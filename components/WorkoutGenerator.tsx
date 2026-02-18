@@ -7,7 +7,7 @@ import { useNotification } from '../contexts/NotificationContext';
 import { getExerciseHistory } from '../services/supabaseService';
 import { generateAIRoutine } from '../services/aiService';
 import { EXERCISES as FALLBACK_EXERCISES, SPLITS } from '../constants';
-import { Card, Button, Slider, Skeleton, Badge, EmptyState } from './UI';
+import { Card, Button, Slider, Skeleton, Badge, EmptyState, SelectionButton } from './UI';
 import { Sparkles, Dna, Info, PlayCircle, RefreshCw, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MuscleGroup, ExerciseDefinition } from '../types';
@@ -135,7 +135,7 @@ export const WorkoutGenerator: React.FC = () => {
   // Tutorial links are rendered as <a> tags directly for better browser compatibility
 
   return (
-    <div className="space-y-8 animate-fade-in-up">
+    <div className="space-y-8">
       {/* Header */}
       <header>
         <h2 className="text-primary-400 font-medium tracking-wide text-xs uppercase">{t('genTitle')}</h2>
@@ -154,17 +154,9 @@ export const WorkoutGenerator: React.FC = () => {
             <label className="text-xs font-medium text-slate-400 ms-1 block">{t('genSplitProtocol')}</label>
             <div className="grid grid-cols-1 gap-2">
               {SPLITS.map((split) => (
-                <button
-                  key={split.id}
-                  onClick={() => setSelectedSplit(split.id as any)}
-                  className={`p-3 rounded-xl border transition-all text-left font-medium text-sm ${
-                    selectedSplit === split.id
-                      ? 'border-primary-500 bg-primary-500/10 text-primary-400 shadow-lg shadow-primary-500/10'
-                      : 'border-surface-800 bg-surface-900 text-slate-500 hover:border-surface-700'
-                  }`}
-                >
+                <SelectionButton key={split.id} active={selectedSplit === split.id} onClick={() => setSelectedSplit(split.id as any)}>
                   {split.name}
-                </button>
+                </SelectionButton>
               ))}
             </div>
           </div>
@@ -238,7 +230,7 @@ export const WorkoutGenerator: React.FC = () => {
                 {generated.map((item, i) => (
                   <div
                     key={i}
-                    className="p-4 rounded-2xl bg-surface-900 border border-surface-800 group hover:border-primary-500/50 transition-all"
+                    className={`p-4 rounded-2xl bg-surface-900 border border-surface-800 group hover:border-primary-500/50 transition-all animate-fade-in-up stagger-${Math.min(i + 1, 8)}`}
                   >
                     <h4 className="text-primary-400 font-semibold text-xs mb-3 flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary-500"></div>
@@ -289,7 +281,7 @@ export const WorkoutGenerator: React.FC = () => {
                 <Button variant="outline" onClick={handleRegenerate}>
                   <RefreshCw size={16} /> {t('genRegenerate')}
                 </Button>
-                <Button variant="primary" onClick={handleStartWorkout}>
+                <Button variant="primary" onClick={handleStartWorkout} className="animate-pulse-glow">
                   {t('genStartWorkout')} <ArrowRight size={16} />
                 </Button>
               </div>
