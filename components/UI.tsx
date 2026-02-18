@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
+import { X, CheckCircle, AlertCircle, Info, AlertTriangle, Minus, Plus } from 'lucide-react';
 
 // ─── Button ───
 
@@ -12,10 +12,10 @@ export const Button: React.FC<{
   disabled?: boolean;
   type?: 'button' | 'submit';
 }> = ({ children, onClick, variant = 'primary', className = '', disabled, type = 'button' }) => {
-  const base = "px-4 py-2.5 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm";
+  const base = "px-4 py-2.5 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm btn-press";
   const variants = {
-    primary: "bg-primary-500 text-white hover:bg-primary-600 shadow-lg shadow-primary-500/20 font-semibold",
-    secondary: "bg-accent-500 text-white hover:bg-accent-600 shadow-lg shadow-accent-500/20 font-semibold",
+    primary: "bg-primary-500 text-white hover:bg-primary-600 hover:shadow-xl hover:shadow-primary-500/25 shadow-lg shadow-primary-500/20 font-semibold",
+    secondary: "bg-accent-500 text-white hover:bg-accent-600 hover:shadow-xl hover:shadow-accent-500/25 shadow-lg shadow-accent-500/20 font-semibold",
     outline: "border border-surface-700 text-slate-300 hover:bg-surface-800 hover:text-white hover:border-surface-600",
     ghost: "bg-transparent text-slate-400 hover:text-white hover:bg-surface-800",
     danger: "bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20"
@@ -35,8 +35,8 @@ export const Button: React.FC<{
 
 // ─── Card ───
 
-export const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <div className={`glass-card rounded-2xl p-6 card-elevated ${className}`}>
+export const Card: React.FC<{ children: React.ReactNode; className?: string; hover?: boolean }> = ({ children, className = '', hover = false }) => (
+  <div className={`glass-card rounded-2xl p-6 card-elevated ${hover ? 'card-hover glass-card-hover' : ''} ${className}`}>
     {children}
   </div>
 );
@@ -74,14 +74,19 @@ export const Modal: React.FC<{
   onClose: () => void;
   title: string;
   children: React.ReactNode;
-}> = ({ isOpen, onClose, title, children }) => {
+  size?: 'sm' | 'md' | 'lg';
+}> = ({ isOpen, onClose, title, children, size = 'md' }) => {
   if (!isOpen) return null;
+  const sizeClasses = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl' };
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-surface-950/80 backdrop-blur-md animate-fade-in">
-      <div className="glass-card w-full max-w-lg rounded-2xl overflow-hidden card-elevated animate-scale-in">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-surface-950/80 backdrop-blur-md animate-fade-in"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className={`glass-card w-full ${sizeClasses[size]} rounded-2xl overflow-hidden card-elevated animate-scale-in`}>
         <div className="p-4 border-b border-surface-700/50 flex justify-between items-center">
           <h3 className="text-lg font-semibold text-white">{title}</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-surface-700 transition-colors">
+          <button onClick={onClose} className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-surface-700 transition-all hover:rotate-90 duration-200">
             <X size={18} />
           </button>
         </div>
@@ -132,11 +137,82 @@ export const Badge: React.FC<{
     neutral: 'bg-surface-700/50 text-slate-400 border-surface-600/30',
   };
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border ${variants[variant]} ${className}`}>
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border backdrop-blur-sm ${variants[variant]} ${className}`}>
       {children}
     </span>
   );
 };
+
+// ─── SelectionButton ───
+
+export const SelectionButton: React.FC<{
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  className?: string;
+}> = ({ active, onClick, children, className = '' }) => (
+  <button
+    onClick={onClick}
+    className={`p-3 rounded-xl border text-sm font-medium transition-all text-start btn-press ${
+      active
+        ? 'border-primary-500 bg-primary-500/10 text-primary-400 shadow-lg shadow-primary-500/10'
+        : 'border-surface-700 bg-surface-900 text-slate-500 hover:border-surface-600'
+    } ${className}`}
+  >
+    {children}
+  </button>
+);
+
+// ─── FilterChip ───
+
+export const FilterChip: React.FC<{
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}> = ({ active, onClick, children }) => (
+  <button
+    onClick={onClick}
+    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border btn-press ${
+      active
+        ? 'bg-primary-500/10 text-primary-400 border-primary-500/30'
+        : 'text-slate-400 hover:text-white hover:bg-surface-800 border-surface-700'
+    }`}
+  >
+    {children}
+  </button>
+);
+
+// ─── NumberStepper ───
+
+export const NumberStepper: React.FC<{
+  value: number;
+  placeholder?: string;
+  onDecrement: () => void;
+  onIncrement: () => void;
+  onChange: (val: number) => void;
+}> = ({ value, placeholder = '0', onDecrement, onIncrement, onChange }) => (
+  <div className="flex items-center gap-1.5">
+    <button
+      onClick={onDecrement}
+      className="p-2 rounded-xl bg-surface-700 text-slate-400 hover:text-white hover:bg-surface-600 transition-all shrink-0 btn-press"
+    >
+      <Minus size={14} />
+    </button>
+    <input
+      type="number"
+      value={value || ''}
+      placeholder={placeholder}
+      onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+      className="w-full bg-surface-900 border border-surface-700 rounded-xl p-2.5 text-center text-sm font-medium focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 transition-all"
+    />
+    <button
+      onClick={onIncrement}
+      className="p-2 rounded-xl bg-surface-700 text-slate-400 hover:text-white hover:bg-surface-600 transition-all shrink-0 btn-press"
+    >
+      <Plus size={14} />
+    </button>
+  </div>
+);
 
 // ─── Skeleton ───
 
@@ -163,14 +239,23 @@ export const Toast: React.FC<{
     info: 'border-primary-500/30',
     warning: 'border-yellow-500/30',
   };
+  const accentBars = {
+    success: 'bg-accent-500',
+    error: 'bg-red-500',
+    info: 'bg-primary-500',
+    warning: 'bg-yellow-500',
+  };
 
   return (
-    <div className={`flex items-center gap-3 px-4 py-3 rounded-xl glass-card border ${borders[type]} animate-slide-up min-w-[280px]`}>
-      {icons[type]}
-      <p className="text-sm text-slate-200 flex-1">{message}</p>
-      <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors">
-        <X size={14} />
-      </button>
+    <div className={`flex items-center gap-3 rounded-xl glass-card border ${borders[type]} animate-toast-enter min-w-[280px] overflow-hidden`}>
+      <div className={`w-1 self-stretch rounded-s-xl ${accentBars[type]}`} />
+      <div className="flex items-center gap-3 px-3 py-3 flex-1">
+        {icons[type]}
+        <p className="text-sm text-slate-200 flex-1">{message}</p>
+        <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors">
+          <X size={14} />
+        </button>
+      </div>
     </div>
   );
 };
@@ -189,7 +274,7 @@ export const Tabs: React.FC<{
         onClick={() => onChange(tab.id)}
         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
           activeTab === tab.id
-            ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20'
+            ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20 scale-[1.02]'
             : 'text-slate-400 hover:text-white hover:bg-surface-700/50'
         }`}
       >
@@ -208,7 +293,10 @@ export const EmptyState: React.FC<{
   action?: React.ReactNode;
 }> = ({ icon, title, description, action }) => (
   <div className="flex flex-col items-center justify-center py-16 text-center">
-    <div className="text-surface-600 mb-4">{icon}</div>
+    <div className="relative mb-6">
+      <div className="absolute inset-0 bg-primary-500/10 rounded-full blur-2xl scale-150" />
+      <div className="relative text-surface-500 animate-float">{icon}</div>
+    </div>
     <h3 className="text-lg font-semibold text-slate-300 mb-1">{title}</h3>
     <p className="text-sm text-slate-500 mb-6 max-w-sm">{description}</p>
     {action}
