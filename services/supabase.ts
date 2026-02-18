@@ -24,7 +24,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
 let pendingOAuthTokens: { accessToken: string; refreshToken: string } | null = null;
 
 const hash = window.location.hash;
-console.log('[AUTH DEBUG] supabase.ts init — hash:', hash ? hash.substring(0, 60) + '...' : '(none)');
 
 if (hash && hash.includes('access_token=')) {
   const params = new URLSearchParams(hash.substring(1));
@@ -32,21 +31,15 @@ if (hash && hash.includes('access_token=')) {
   const refreshToken = params.get('refresh_token');
   if (accessToken && refreshToken) {
     pendingOAuthTokens = { accessToken, refreshToken };
-    console.log('[AUTH DEBUG] OAuth tokens captured from hash');
-  } else {
-    console.warn('[AUTH DEBUG] Hash had access_token but parsing failed — accessToken:', !!accessToken, 'refreshToken:', !!refreshToken);
   }
   // Clear the hash so HashRouter doesn't try to route "access_token=..."
   history.replaceState(null, '', window.location.pathname + window.location.search);
-} else {
-  console.log('[AUTH DEBUG] No OAuth hash detected');
 }
 
 /** Returns captured OAuth tokens (if any) and clears them so they aren't reused. */
 export function consumeOAuthTokens() {
   const tokens = pendingOAuthTokens;
   pendingOAuthTokens = null;
-  console.log('[AUTH DEBUG] consumeOAuthTokens →', tokens ? 'HAS tokens' : 'NO tokens');
   return tokens;
 }
 
@@ -56,5 +49,3 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: false,
   },
 });
-
-console.log('[AUTH DEBUG] Supabase client created');

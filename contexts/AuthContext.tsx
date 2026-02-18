@@ -28,14 +28,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
 
   const loadOrCreateProfile = async (sbUser: User) => {
-    console.log('[AUTH DEBUG] loadOrCreateProfile — user id:', sbUser.id, 'email:', sbUser.email);
     try {
       const profile = await getUserProfile(sbUser.id);
       if (profile) {
-        console.log('[AUTH DEBUG] Profile found in DB:', profile.displayName);
         setUser(profile);
       } else {
-        console.log('[AUTH DEBUG] No profile in DB, creating new one');
         const displayName =
           sbUser.user_metadata?.full_name ||
           sbUser.user_metadata?.name ||
@@ -49,25 +46,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdAt: new Date().toISOString()
         };
         await saveUserProfile(sbUser.id, newProfile);
-        console.log('[AUTH DEBUG] Profile created successfully');
         setUser(newProfile);
       }
     } catch (err) {
-      console.error('[AUTH DEBUG] loadOrCreateProfile FAILED:', err);
+      console.error('Failed to load/create profile:', err);
     }
   };
 
   useEffect(() => {
     let cancelled = false;
     let loadingCleared = false;
-    const t0 = Date.now();
-
-    console.log('[AUTH DEBUG] useEffect running, registering onAuthStateChange...');
 
     const clearLoading = () => {
       if (!cancelled && !loadingCleared) {
         loadingCleared = true;
-        console.log('[AUTH DEBUG] clearLoading() called after', Date.now() - t0, 'ms');
         setIsLoading(false);
       }
     };
@@ -80,7 +72,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     //    lock is released.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('[AUTH DEBUG] onAuthStateChange →', event, '| session:', !!session, '| user:', session?.user?.email ?? 'null', '| cancelled:', cancelled, '| +' + (Date.now() - t0) + 'ms');
         if (cancelled) return;
         if (session?.user) {
           setSupabaseUser(session.user);
@@ -88,7 +79,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const sbUser = session.user;
           setTimeout(async () => {
             if (cancelled) return;
-            console.log('[AUTH DEBUG] deferred loadOrCreateProfile starting | +' + (Date.now() - t0) + 'ms');
             await loadOrCreateProfile(sbUser);
             clearLoading();
           }, 0);
@@ -106,14 +96,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 2. If we captured OAuth tokens, call setSession() NOW.
     const oauthTokens = consumeOAuthTokens();
     if (oauthTokens) {
-      console.log('[AUTH DEBUG] Calling setSession() with OAuth tokens...');
       supabase.auth.setSession({
         access_token: oauthTokens.accessToken,
         refresh_token: oauthTokens.refreshToken,
-      }).then((result) => {
-        console.log('[AUTH DEBUG] setSession() resolved — session:', !!result.data.session, '| error:', result.error?.message ?? 'none', '| +' + (Date.now() - t0) + 'ms');
-      }).catch((err) => {
-        console.error('[AUTH DEBUG] setSession() REJECTED:', err, '| +' + (Date.now() - t0) + 'ms');
+      }).catch(() => {
         clearLoading();
       });
     }
@@ -121,13 +107,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 3. Hard safety timeout.
     const safetyTimer = setTimeout(() => {
       if (!loadingCleared) {
-        console.warn('[AUTH DEBUG] SAFETY TIMEOUT after 4000ms — forcing login screen');
         clearLoading();
       }
     }, 4000);
 
     return () => {
-      console.log('[AUTH DEBUG] useEffect CLEANUP (cancelled=true)');
       cancelled = true;
       clearTimeout(safetyTimer);
       subscription.unsubscribe();
@@ -136,10 +120,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     setError(null);
-    console.log('[AUTH DEBUG] login() called for:', email);
     const { error: err } = await supabase.auth.signInWithPassword({ email, password });
     if (err) {
-      console.error('[AUTH DEBUG] login() error:', err.message);
       const msg = err.message.includes('Invalid login credentials')
         ? 'Invalid email or password'
         : err.message.includes('Email not confirmed')
@@ -148,18 +130,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(msg);
       throw err;
     }
-    console.log('[AUTH DEBUG] login() success — waiting for onAuthStateChange SIGNED_IN');
   };
 
   const loginWithGoogle = async () => {
     setError(null);
-    console.log('[AUTH DEBUG] loginWithGoogle() called — redirectTo:', window.location.origin);
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin },
     });
     if (err) {
-      console.error('[AUTH DEBUG] loginWithGoogle() error:', err.message);
       setError('Google sign-in failed. Please try again');
       throw err;
     }
@@ -167,7 +146,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signup = async (email: string, password: string, displayName: string) => {
     setError(null);
-    console.log('[AUTH DEBUG] signup() called for:', email);
     const { data, error: err } = await supabase.auth.signUp({
       email,
       password,
@@ -177,7 +155,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       },
     });
     if (err) {
-      console.error('[AUTH DEBUG] signup() error:', err.message);
       const msg = err.message.includes('already registered')
         ? 'An account with this email already exists'
         : err.message.includes('Password')
@@ -188,15 +165,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(msg);
       throw err;
     }
-    console.log('[AUTH DEBUG] signup() result — user:', !!data.user, '| session:', !!data.session);
     if (data.user && !data.session) {
       throw new Error('EMAIL_CONFIRMATION_REQUIRED');
     }
-    console.log('[AUTH DEBUG] signup() success with session — waiting for onAuthStateChange SIGNED_IN');
   };
 
   const logout = async () => {
-    console.log('[AUTH DEBUG] logout() called');
     await supabase.auth.signOut();
     setUser(null);
     setSupabaseUser(null);
