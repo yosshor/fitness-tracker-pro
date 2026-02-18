@@ -65,6 +65,11 @@
         background: rgba(31, 41, 55, 0.6);
         backdrop-filter: blur(16px);
         border: 1px solid rgba(255, 255, 255, 0.06);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+      }
+      .glass-card-hover:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.06);
       }
       .card-glow-blue {
         box-shadow: 0 0 20px rgba(59, 130, 246, 0.08);
@@ -105,10 +110,52 @@
         0% { background-position: -200% 0; }
         100% { background-position: 200% 0; }
       }
+      @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(-12px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes expandHeight {
+        from { opacity: 0; max-height: 0; }
+        to { opacity: 1; max-height: 2000px; }
+      }
+      @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.3); }
+        50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+      }
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+      }
+      @keyframes toastEnter {
+        from { opacity: 0; transform: translateY(12px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
       .animate-fade-in-up { animation: fadeInUp 0.4s ease-out both; }
       .animate-fade-in { animation: fadeIn 0.3s ease-out both; }
       .animate-scale-in { animation: scaleIn 0.3s ease-out both; }
       .animate-slide-up { animation: slideUp 0.4s ease-out both; }
+      .animate-slide-down { animation: slideDown 0.3s ease-out both; }
+      .animate-slide-in-right { animation: slideInRight 0.35s ease-out both; }
+      .animate-expand { animation: expandHeight 0.3s ease-out both; overflow: hidden; }
+      .animate-pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
+      .animate-float { animation: float 3s ease-in-out infinite; }
+      .animate-toast-enter { animation: toastEnter 0.35s ease-out both; }
+      .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+      .card-hover:hover { transform: translateY(-2px); }
+      .btn-press:active { transform: scale(0.97); }
+      .btn-press { transition: transform 0.1s ease; }
+      .stagger-1 { animation-delay: 0.05s; }
+      .stagger-2 { animation-delay: 0.1s; }
+      .stagger-3 { animation-delay: 0.15s; }
+      .stagger-4 { animation-delay: 0.2s; }
+      .stagger-5 { animation-delay: 0.25s; }
+      .stagger-6 { animation-delay: 0.3s; }
+      .stagger-7 { animation-delay: 0.35s; }
+      .stagger-8 { animation-delay: 0.4s; }
       .skeleton {
         background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);
         background-size: 200% 100%;
