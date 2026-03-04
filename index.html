@@ -3,7 +3,10 @@
 <html lang="en" dir="ltr" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="description" content="AI-Powered Fitness Tracker - Track workouts, generate personalized routines, and monitor your progress">
     <meta name="theme-color" content="#0c0f1a">
     <title>Fitness Tracker Pro</title>
@@ -56,10 +59,23 @@
       }
     </script>
     <style>
+      :root {
+        --safe-area-top: env(safe-area-inset-top, 0px);
+        --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-area-left: env(safe-area-inset-left, 0px);
+        --safe-area-right: env(safe-area-inset-right, 0px);
+        --keyboard-height: 0px;
+      }
       body {
         background-color: #0c0f1a;
         color: #f8fafc;
         -webkit-tap-highlight-color: transparent;
+        padding-top: var(--safe-area-top);
+        padding-bottom: var(--safe-area-bottom);
+        padding-left: var(--safe-area-left);
+        padding-right: var(--safe-area-right);
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
       }
       .glass-card {
         background: rgba(31, 41, 55, 0.6);

@@ -101,7 +101,7 @@ const Navigation: React.FC = () => {
       </aside>
 
       {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 start-0 end-0 bg-surface-950/90 backdrop-blur-xl border-t border-surface-800 flex justify-around p-2 z-50">
+      <nav className="md:hidden fixed bottom-0 start-0 end-0 bg-surface-950/90 backdrop-blur-xl border-t border-surface-800 flex justify-around p-2 z-50" style={{ paddingBottom: 'max(0.5rem, var(--safe-area-bottom))' }}>
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = location.pathname === item.path;

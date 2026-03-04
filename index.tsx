@@ -7,6 +7,9 @@ import { AuthProvider } from './contexts/AuthContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { AppProvider } from './contexts/AppContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { initCapacitor } from './services/capacitor';
+
+initCapacitor();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
