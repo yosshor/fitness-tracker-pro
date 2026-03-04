@@ -11,6 +11,7 @@ An AI-powered fitness tracking web app built with React, Supabase, and Google Ge
 - **Tailwind CSS** — Styling (dark cyber theme)
 - **Recharts** — Analytics charts
 - **Lucide React** — Icons
+- **Capacitor 8** — Native Android app
 
 ## Features
 
@@ -22,6 +23,7 @@ An AI-powered fitness tracking web app built with React, Supabase, and Google Ge
 - **Workout History** — Browse, search, and repeat past workouts
 - **Bilingual Support** — English and Hebrew with full RTL layout
 - **Auth** — Email/password and Google OAuth sign-in
+- **Android App** — Native Android build via Capacitor with status bar, keyboard, and back button handling
 
 ## Getting Started
 
@@ -103,6 +105,30 @@ Opens at [http://localhost:3000](http://localhost:3000).
 npm run build
 ```
 
+### Android
+
+Requires [Android Studio](https://developer.android.com/studio) with Android SDK installed.
+
+```bash
+# Full build + sync + open in Android Studio
+npm run android
+
+# Sync web assets to Android project
+npm run cap:sync
+
+# Open Android project in Android Studio
+npm run cap:open
+
+# Live reload on connected device/emulator
+npm run android:live
+```
+
+The Android app uses Capacitor to wrap the web app in a native WebView with:
+- Dark status bar and navigation bar matching the app theme
+- Hardware back button support (navigates back or exits)
+- Keyboard-aware layout (content shifts when keyboard appears)
+- Safe area insets for notched/punch-hole displays
+
 ## Project Structure
 
 ```
@@ -126,7 +152,8 @@ npm run build
 │   ├── supabase.ts       # Supabase client init + OAuth hash handling
 │   ├── supabaseService.ts # Database CRUD operations
 │   ├── aiService.ts      # Gemini AI integration
-│   └── storageService.ts # Image uploads (Cloudinary + Supabase Storage)
+│   ├── storageService.ts # Image uploads (Cloudinary + Supabase Storage)
+│   └── capacitor.ts      # Native mobile platform init (status bar, keyboard, back button)
 ├── supabase/
 │   └── migration.sql     # Database schema, RLS policies, storage setup
 ├── i18n/                 # Internationalization
@@ -134,15 +161,21 @@ npm run build
 │   └── translations.ts   # EN/HE translations
 ├── types.ts              # TypeScript type definitions
 ├── constants.tsx          # Exercise library & split configs
+├── android/              # Capacitor Android native project
+├── capacitor.config.ts   # Capacitor configuration
 ├── App.tsx               # Root component with routing
 └── index.tsx             # Entry point
 ```
 
 ## Deployment
 
+### Web
 Configured for Vercel with SPA routing. Run `npm run build` and deploy the `dist` folder.
 
 Make sure to set the environment variables in your hosting provider and update the Supabase **Site URL** and **Redirect URLs** to your production domain.
+
+### Android
+Build the APK/AAB from Android Studio: **Build → Build Bundle(s) / APK(s)**. The app ID is `com.cybergym.fitnesstracker`.
 
 ## License
 
