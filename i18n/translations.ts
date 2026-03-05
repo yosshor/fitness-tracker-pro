@@ -81,6 +81,8 @@ export const translations = {
     logTutorial: 'Watch Tutorial',
     logLastTime: 'Last time',
     logNoExercises: 'Add at least one exercise',
+    logEmptyHint: 'Add exercises to start logging your workout. Pick from the library or generate an AI routine.',
+    logOrGenerate: 'Or generate an AI routine',
 
     // Workout Generator
     genTitle: 'Workout Generator',
@@ -257,6 +259,8 @@ export const translations = {
     logTutorial: 'צפה בהדרכה',
     logLastTime: 'פעם קודמת',
     logNoExercises: 'הוסף לפחות תרגיל אחד',
+    logEmptyHint: 'הוסף תרגילים כדי להתחיל לרשום את האימון. בחר מהספרייה או צור תוכנית AI.',
+    logOrGenerate: 'או צור תוכנית AI',
 
     // Workout Generator
     genTitle: 'מחולל אימונים',

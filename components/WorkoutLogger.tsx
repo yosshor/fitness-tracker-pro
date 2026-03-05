@@ -10,7 +10,7 @@ import { EXERCISES as FALLBACK_EXERCISES } from '../constants';
 import { Card, Button, Input, Slider, Modal, Badge, Skeleton, FilterChip, NumberStepper } from './UI';
 import {
   Plus, Trash2, Save, X, Search, ChevronRight, PlayCircle,
-  Sparkles, RefreshCw, Zap, Info
+  Sparkles, RefreshCw, Zap, Info, Dumbbell
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -449,14 +449,35 @@ export const WorkoutLogger: React.FC = () => {
           </Card>
         ))}
 
-        {/* Add exercise button */}
-        <Button
-          variant="outline"
-          className="w-full border-dashed py-6 text-slate-400 hover:text-primary-400 hover:bg-primary-500/5"
-          onClick={() => setShowAddModal(true)}
-        >
-          <Plus size={24} /> {t('logAddExercise')}
-        </Button>
+        {/* Empty state or Add exercise button */}
+        {exercises.length === 0 ? (
+          <Card className="py-16 flex flex-col items-center justify-center text-center border-dashed border-2 border-surface-700 bg-surface-900/50">
+            <div className="w-20 h-20 rounded-2xl bg-primary-500/10 flex items-center justify-center mb-6 animate-float">
+              <Dumbbell size={36} className="text-primary-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-2">{t('logActiveSession')}</h3>
+            <p className="text-sm text-slate-400 mb-8 max-w-xs">
+              {t('logEmptyHint')}
+            </p>
+            <Button variant="primary" onClick={() => setShowAddModal(true)} className="px-8 py-3 text-base">
+              <Plus size={20} /> {t('logAddExercise')}
+            </Button>
+            <button
+              onClick={() => navigate('/generate')}
+              className="mt-4 text-xs text-slate-500 hover:text-primary-400 transition-colors flex items-center gap-1.5"
+            >
+              <Sparkles size={14} /> {t('logOrGenerate')}
+            </button>
+          </Card>
+        ) : (
+          <Button
+            variant="outline"
+            className="w-full border-dashed py-6 text-slate-400 hover:text-primary-400 hover:bg-primary-500/5"
+            onClick={() => setShowAddModal(true)}
+          >
+            <Plus size={24} /> {t('logAddExercise')}
+          </Button>
+        )}
       </div>
 
       {/* Post-workout feedback */}
