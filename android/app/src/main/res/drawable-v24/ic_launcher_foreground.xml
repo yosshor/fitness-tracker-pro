@@ -3,20 +3,54 @@
     android:height="108dp"
     android:viewportHeight="108"
     android:viewportWidth="108">
-    <!-- Dumbbell icon centered in safe zone (26dp inset) -->
+
+    <!-- Dumbbell centered in adaptive icon safe zone (24dp inset each side = 60dp usable) -->
+
+    <!-- Left outer plate -->
     <path
-        android:fillColor="#3b82f6"
-        android:pathData="M36,48 L36,60 L42,60 L42,48 Z" />
+        android:fillColor="#1d4ed8"
+        android:pathData="M28,39 L28,69 Q28,71 30,71 L34,71 Q36,71 36,69 L36,39 Q36,37 34,37 L30,37 Q28,37 28,39 Z" />
+
+    <!-- Left inner plate -->
     <path
-        android:fillColor="#3b82f6"
-        android:pathData="M66,48 L66,60 L72,60 L72,48 Z" />
+        android:fillColor="#2563eb"
+        android:pathData="M37,42 L37,66 Q37,68 39,68 L43,68 Q44,68 44,66 L44,42 Q44,40 43,40 L39,40 Q37,40 37,42 Z" />
+
+    <!-- Bar -->
     <path
         android:fillColor="#60a5fa"
-        android:pathData="M30,44 L30,64 L38,64 L38,44 Z" />
+        android:pathData="M44,50 L64,50 Q67,50 67,54 Q67,58 64,58 L44,58 Q41,58 41,54 Q41,50 44,50 Z" />
+
+    <!-- Right inner plate -->
     <path
-        android:fillColor="#60a5fa"
-        android:pathData="M70,44 L70,64 L78,64 L78,44 Z" />
+        android:fillColor="#2563eb"
+        android:pathData="M64,42 L64,66 Q64,68 66,68 L69,68 Q71,68 71,66 L71,42 Q71,40 69,40 L66,40 Q64,40 64,42 Z" />
+
+    <!-- Right outer plate -->
+    <path
+        android:fillColor="#1d4ed8"
+        android:pathData="M72,39 L72,69 Q72,71 74,71 L78,71 Q80,71 80,69 L80,39 Q80,37 78,37 L74,37 Q72,37 72,39 Z" />
+
+    <!-- Left plate highlight -->
     <path
         android:fillColor="#93c5fd"
-        android:pathData="M42,51 L42,57 L66,57 L66,51 Z" />
+        android:pathData="M30,40 L30,55 Q30,56 31,56 L31,56 Q32,56 32,55 L32,40 Q32,39 31,39 L31,39 Q30,39 30,40 Z"
+        android:alpha="0.35" />
+
+    <!-- Right plate highlight -->
+    <path
+        android:fillColor="#93c5fd"
+        android:pathData="M74,40 L74,55 Q74,56 75,56 L75,56 Q76,56 76,55 L76,40 Q76,39 75,39 L75,39 Q74,39 74,40 Z"
+        android:alpha="0.35" />
+
+    <!-- Bar grip lines -->
+    <path android:fillColor="#bfdbfe" android:alpha="0.25"
+        android:pathData="M49,52 L49,56 Q49,56.5 49.5,56.5 Q50,56.5 50,56 L50,52 Q50,51.5 49.5,51.5 Q49,51.5 49,52 Z" />
+    <path android:fillColor="#bfdbfe" android:alpha="0.25"
+        android:pathData="M52,52 L52,56 Q52,56.5 52.5,56.5 Q53,56.5 53,56 L53,52 Q53,51.5 52.5,51.5 Q52,51.5 52,52 Z" />
+    <path android:fillColor="#bfdbfe" android:alpha="0.25"
+        android:pathData="M55,52 L55,56 Q55,56.5 55.5,56.5 Q56,56.5 56,56 L56,52 Q56,51.5 55.5,51.5 Q55,51.5 55,52 Z" />
+    <path android:fillColor="#bfdbfe" android:alpha="0.25"
+        android:pathData="M58,52 L58,56 Q58,56.5 58.5,56.5 Q59,56.5 59,56 L59,52 Q59,51.5 58.5,51.5 Q58,51.5 58,52 Z" />
+
 </vector>
