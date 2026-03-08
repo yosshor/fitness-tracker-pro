@@ -1,5 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { GoogleGenAI } from '@google/genai';
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
@@ -193,13 +194,39 @@ Use emojis minimally. Give structured answers with bullet points when appropriat
                   </div>
                 )}
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
+                  className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                     msg.role === 'user'
-                      ? 'bg-primary-500/20 text-white rounded-ee-md'
-                      : 'bg-surface-800 text-slate-200 rounded-es-md border border-surface-700/50'
+                      ? 'bg-primary-500/20 text-white rounded-ee-md whitespace-pre-wrap'
+                      : 'bg-surface-800 text-slate-200 rounded-es-md border border-surface-700/50 prose-chat'
                   }`}
                 >
-                  {msg.content}
+                  {msg.role === 'user' ? msg.content : (
+                    <ReactMarkdown
+                      components={{
+                        h1: ({ children }) => <h1 className="text-lg font-bold text-white mt-3 mb-2 first:mt-0">{children}</h1>,
+                        h2: ({ children }) => <h2 className="text-base font-bold text-white mt-3 mb-2 first:mt-0">{children}</h2>,
+                        h3: ({ children }) => <h3 className="text-sm font-semibold text-primary-400 mt-3 mb-1.5 first:mt-0">{children}</h3>,
+                        h4: ({ children }) => <h4 className="text-sm font-semibold text-slate-300 mt-2 mb-1 first:mt-0">{children}</h4>,
+                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                        ul: ({ children }) => <ul className="mb-2 last:mb-0 space-y-1 list-disc list-inside">{children}</ul>,
+                        ol: ({ children }) => <ol className="mb-2 last:mb-0 space-y-1 list-decimal list-inside">{children}</ol>,
+                        li: ({ children }) => <li className="text-slate-300">{children}</li>,
+                        strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+                        em: ({ children }) => <em className="text-slate-300 italic">{children}</em>,
+                        code: ({ children, className }) => {
+                          const isBlock = className?.includes('language-');
+                          return isBlock
+                            ? <code className="block bg-surface-900 rounded-lg p-3 my-2 text-xs text-emerald-400 overflow-x-auto">{children}</code>
+                            : <code className="bg-surface-900 rounded px-1.5 py-0.5 text-xs text-emerald-400">{children}</code>;
+                        },
+                        blockquote: ({ children }) => <blockquote className="border-l-2 border-primary-500/50 pl-3 my-2 text-slate-400 italic">{children}</blockquote>,
+                        hr: () => <hr className="border-surface-700 my-3" />,
+                        a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary-400 underline underline-offset-2 hover:text-primary-300">{children}</a>,
+                      }}
+                    >
+                      {msg.content}
+                    </ReactMarkdown>
+                  )}
                 </div>
                 {msg.role === 'user' && (
                   <div className="w-8 h-8 rounded-lg bg-accent-500/10 flex items-center justify-center shrink-0 mt-1">
