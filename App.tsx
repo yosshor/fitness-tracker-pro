@@ -131,7 +131,7 @@ const Navigation: React.FC = () => {
           >
             <div className="flex items-center justify-between mb-4 px-2">
               <h3 className="text-sm font-semibold text-white">{t('navMore') || 'More'}</h3>
-              <button onClick={() => setMoreOpen(false)} className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-surface-800 transition-all">
+              <button onClick={() => setMoreOpen(false)} aria-label="Close menu" className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-surface-800 transition-all">
                 <XIcon size={18} />
               </button>
             </div>

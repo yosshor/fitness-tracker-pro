@@ -54,7 +54,14 @@ body {
   padding-right: var(--safe-area-right);
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
+  text-rendering: optimizeSpeed;
 }
+
+/* Optimize paint for fixed navs */
+.fixed { will-change: transform; }
+
+/* Reduce layout shifts from images */
+img, svg { content-visibility: auto; }
 
 /* Glass card effects */
 .glass-card {
