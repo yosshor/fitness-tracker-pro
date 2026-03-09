@@ -217,7 +217,7 @@ const App: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-surface-950 flex items-center justify-center">
+      <main className="min-h-screen bg-surface-950 flex items-center justify-center">
         <div className="flex flex-col items-center gap-6 animate-fade-in">
           <div className="relative">
             <div className="absolute inset-0 bg-primary-500/20 rounded-full blur-2xl scale-150" />
@@ -232,7 +232,7 @@ const App: React.FC = () => {
             <div className="w-8 h-0.5 bg-primary-500/50 rounded-full mx-auto mt-3 animate-pulse" />
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 

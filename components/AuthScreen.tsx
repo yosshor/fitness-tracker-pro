@@ -63,7 +63,7 @@ export const AuthScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-b from-surface-900 via-surface-950 to-black relative">
+    <main className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-b from-surface-900 via-surface-950 to-black relative">
       <div className="absolute top-4 end-4">
         <LanguageToggle language={language} onToggle={toggleLanguage} />
       </div>
@@ -124,6 +124,7 @@ export const AuthScreen: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                   className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -187,7 +188,7 @@ export const AuthScreen: React.FC = () => {
           <button
             onClick={handleGoogleSignIn}
             disabled={isGoogleLoading || isLoading}
-            className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl border border-surface-700 bg-surface-800/50 text-white hover:bg-surface-800 transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-surface-600 bg-surface-800 text-white hover:bg-surface-700 transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg width="18" height="18" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
@@ -202,19 +203,19 @@ export const AuthScreen: React.FC = () => {
             {mode === 'login' && (
               <button
                 onClick={handleReset}
-                className="text-xs text-primary-400 hover:text-primary-300 transition-colors w-full text-center"
+                className="text-sm text-primary-400 hover:text-primary-300 transition-colors w-full text-center py-2 min-h-[48px] flex items-center justify-center"
               >
                 {t('authForgotPassword')}
               </button>
             )}
 
-            <div className="text-center">
-              <span className="text-xs text-slate-500">
-                {mode === 'login' ? t('authNoAccount') : t('authHasAccount')}{' '}
+            <div className="text-center py-2 min-h-[48px] flex items-center justify-center gap-1">
+              <span className="text-sm text-slate-500">
+                {mode === 'login' ? t('authNoAccount') : t('authHasAccount')}
               </span>
               <button
                 onClick={toggleMode}
-                className="text-xs text-primary-400 hover:text-primary-300 font-medium transition-colors"
+                className="text-sm text-primary-400 hover:text-primary-300 font-medium transition-colors py-2"
               >
                 {mode === 'login' ? t('authSignUp') : t('authSignIn')}
               </button>
@@ -223,6 +224,6 @@ export const AuthScreen: React.FC = () => {
         </Card>
         </div>
       </div>
-    </div>
+    </main>
   );
 };

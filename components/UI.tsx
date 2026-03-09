@@ -86,7 +86,7 @@ export const Modal: React.FC<{
       <div className={`glass-card w-full ${sizeClasses[size]} rounded-2xl overflow-hidden card-elevated animate-scale-in`}>
         <div className="p-4 border-b border-surface-700/50 flex justify-between items-center">
           <h3 className="text-lg font-semibold text-white">{title}</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-surface-700 transition-all hover:rotate-90 duration-200">
+          <button onClick={onClose} aria-label="Close" className="text-slate-400 hover:text-white p-2.5 rounded-lg hover:bg-surface-700 transition-all hover:rotate-90 duration-200">
             <X size={18} />
           </button>
         </div>
@@ -194,7 +194,8 @@ export const NumberStepper: React.FC<{
   <div className="flex items-center gap-1.5">
     <button
       onClick={onDecrement}
-      className="p-2 rounded-xl bg-surface-700 text-slate-400 hover:text-white hover:bg-surface-600 transition-all shrink-0 btn-press"
+      aria-label="Decrease"
+      className="p-2.5 rounded-xl bg-surface-700 text-slate-400 hover:text-white hover:bg-surface-600 transition-all shrink-0 btn-press"
     >
       <Minus size={14} />
     </button>
@@ -207,7 +208,8 @@ export const NumberStepper: React.FC<{
     />
     <button
       onClick={onIncrement}
-      className="p-2 rounded-xl bg-surface-700 text-slate-400 hover:text-white hover:bg-surface-600 transition-all shrink-0 btn-press"
+      aria-label="Increase"
+      className="p-2.5 rounded-xl bg-surface-700 text-slate-400 hover:text-white hover:bg-surface-600 transition-all shrink-0 btn-press"
     >
       <Plus size={14} />
     </button>
@@ -252,7 +254,7 @@ export const Toast: React.FC<{
       <div className="flex items-center gap-3 px-3 py-3 flex-1">
         {icons[type]}
         <p className="text-sm text-slate-200 flex-1">{message}</p>
-        <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors">
+        <button onClick={onClose} aria-label="Dismiss" className="text-slate-500 hover:text-white transition-colors p-2">
           <X size={14} />
         </button>
       </div>
