@@ -15,6 +15,7 @@ export const translations = {
     navStats: 'Analytics',
     navHistory: 'History',
     navSettings: 'Settings',
+    navMore: 'More',
 
     // Auth
     authWelcome: 'Welcome Back',
@@ -53,6 +54,11 @@ export const translations = {
     dashCaptureProgress: 'Track your transformation',
     dashViewAll: 'View All',
     dashExercises: 'exercises',
+    dashOnboardTitle: 'Get Started',
+    dashOnboardSplit: 'Choose your training split',
+    dashOnboardApiKey: 'Set up your AI coach',
+    dashOnboardWorkout: 'Log your first workout',
+    dashOnboardDismiss: 'Dismiss',
 
     // Workout Logger
     logTitle: 'Log Workout',
@@ -193,6 +199,7 @@ export const translations = {
     navStats: 'סטטיסטיקה',
     navHistory: 'היסטוריה',
     navSettings: 'הגדרות',
+    navMore: 'עוד',
 
     // Auth
     authWelcome: 'ברוך הבא',
@@ -231,6 +238,11 @@ export const translations = {
     dashCaptureProgress: 'עקוב אחר השינוי',
     dashViewAll: 'הצג הכל',
     dashExercises: 'תרגילים',
+    dashOnboardTitle: 'בואו נתחיל',
+    dashOnboardSplit: 'בחר את חלוקת האימון שלך',
+    dashOnboardApiKey: 'הגדר את מאמן ה-AI שלך',
+    dashOnboardWorkout: 'רשום את האימון הראשון שלך',
+    dashOnboardDismiss: 'סגור',
 
     // Workout Logger
     logTitle: 'רישום אימון',
