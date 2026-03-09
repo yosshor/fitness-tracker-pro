@@ -154,16 +154,15 @@ Recommended order for Play Store (first 3 are most critical):
 
 ## Privacy Policy URL
 ```
-https://YOUR_VERCEL_DOMAIN/privacy.html
+https://trainer.yosshor.com/privacy.html
 ```
-(Update with your actual deployed URL)
 
 ---
 
 ## Contact Information
 - Developer name: [Your name]
 - Email: cybergym.fitness.app@gmail.com
-- Website: [Your Vercel URL]
+- Website: https://trainer.yosshor.com
 
 ---
 

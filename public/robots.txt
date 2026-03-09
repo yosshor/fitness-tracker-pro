@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://fitness-tracker-pro.app/sitemap.xml
+Sitemap: https://trainer.yosshor.com/sitemap.xml
