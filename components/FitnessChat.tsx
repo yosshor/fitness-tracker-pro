@@ -91,6 +91,7 @@ Use emojis minimally. Give structured answers with bullet points when appropriat
 
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
+    if (inputRef.current) inputRef.current.style.height = 'auto';
     setIsLoading(true);
 
     try {
@@ -254,16 +255,23 @@ Use emojis minimally. Give structured answers with bullet points when appropriat
       </Card>
 
       {/* Input */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-end">
         <div className="flex-1 relative">
           <textarea
             ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              // Auto-grow
+              const el = e.target;
+              el.style.height = 'auto';
+              el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+            }}
             onKeyDown={handleKeyDown}
             placeholder={t('chatPlaceholder')}
             rows={1}
             className="w-full bg-surface-800 border border-surface-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500/30 resize-none transition-colors"
+            style={{ maxHeight: '120px' }}
           />
         </div>
         <Button
