@@ -1,16 +1,18 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
 import { useLanguage } from '../i18n/LanguageContext';
 import { Card, Button, Skeleton, EmptyState } from './UI';
-import { Trophy, Clock, Zap, TrendingUp, Calendar, Sparkles, Dumbbell, Camera } from 'lucide-react';
+import { Trophy, Clock, Zap, TrendingUp, Calendar, Sparkles, Dumbbell, Camera, CheckCircle, Circle, X, Rocket, Key, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
-  const { workouts, isLoadingWorkouts } = useApp();
+  const { workouts, isLoadingWorkouts, settings } = useApp();
   const { t } = useLanguage();
+
+  const [onboardDismissed, setOnboardDismissed] = useState(() => localStorage.getItem('onboard_dismissed') === 'true');
 
   const recentWorkouts = [...workouts]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -20,12 +22,20 @@ export const Dashboard: React.FC = () => {
     ? (workouts.reduce((sum, w) => sum + (w.rpe || 0), 0) / workouts.length).toFixed(1)
     : '0.0';
 
+  // Trend: compare last 7 days vs previous 7 days
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+  const thisWeekWorkouts = workouts.filter(w => new Date(w.date) >= weekAgo);
+  const lastWeekWorkouts = workouts.filter(w => { const d = new Date(w.date); return d >= twoWeeksAgo && d < weekAgo; });
+  const sessionsTrend = thisWeekWorkouts.length - lastWeekWorkouts.length;
+
   return (
     <div className="space-y-8">
       {/* Header */}
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <p className="text-sm text-slate-400 mb-1">{t('dashTitle')}</p>
+          <p className="text-sm text-slate-400/80 mb-1">{t('dashTitle')}</p>
           <h1 className="text-3xl font-bold text-white">
             {t('dashWelcome')}, {user?.displayName}
           </h1>
@@ -37,6 +47,68 @@ export const Dashboard: React.FC = () => {
           </span>
         </div>
       </header>
+
+      {/* Onboarding Checklist */}
+      {!onboardDismissed && !isLoadingWorkouts && (() => {
+        const hasSplit = !!user?.currentSplit && user.currentSplit !== 'Full Body';
+        const hasApiKey = !!settings.geminiApiKey;
+        const hasWorkout = workouts.length > 0;
+        const allDone = hasSplit && hasApiKey && hasWorkout;
+        if (allDone) return null;
+        const steps = [
+          { done: hasSplit, label: t('dashOnboardSplit'), path: '/settings', icon: Settings },
+          { done: hasApiKey, label: t('dashOnboardApiKey'), path: '/settings', icon: Key },
+          { done: hasWorkout, label: t('dashOnboardWorkout'), path: '/workout', icon: Dumbbell },
+        ];
+        const completed = steps.filter(s => s.done).length;
+        return (
+          <Card className="relative overflow-hidden border-s-4 border-primary-500 animate-fade-in-up">
+            <button
+              onClick={() => { setOnboardDismissed(true); localStorage.setItem('onboard_dismissed', 'true'); }}
+              className="absolute top-3 end-3 p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-surface-700 transition-all"
+            >
+              <X size={16} />
+            </button>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-primary-500/10 flex items-center justify-center">
+                <Rocket className="w-5 h-5 text-primary-400" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">{t('dashOnboardTitle')}</h3>
+                <p className="text-xs text-slate-400">{completed}/3</p>
+              </div>
+              <div className="ms-auto w-24 h-2 bg-surface-700 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-primary-500 to-accent-500 rounded-full transition-all duration-500"
+                  style={{ width: `${(completed / 3) * 100}%` }}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              {steps.map((step, i) => {
+                const Icon = step.icon;
+                return (
+                  <Link
+                    key={i}
+                    to={step.path}
+                    className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
+                      step.done
+                        ? 'bg-accent-500/5 text-accent-400'
+                        : 'bg-surface-800/40 text-slate-300 hover:bg-surface-800 hover:text-white'
+                    }`}
+                  >
+                    {step.done
+                      ? <CheckCircle size={18} className="text-accent-400 shrink-0" />
+                      : <Circle size={18} className="text-slate-600 shrink-0" />}
+                    <Icon size={16} className={step.done ? 'text-accent-400/50' : 'text-slate-500'} />
+                    <span className={`text-sm font-medium ${step.done ? 'line-through opacity-60' : ''}`}>{step.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </Card>
+        );
+      })()}
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -66,7 +138,16 @@ export const Dashboard: React.FC = () => {
                 <Clock className="w-16 h-16 text-accent-400" />
               </div>
               <p className="text-xs text-slate-400 mb-1">{t('dashSessions')}</p>
-              <h3 className="text-3xl font-semibold text-white">{workouts.length}</h3>
+              <div className="flex items-end gap-2">
+                <h3 className="text-3xl font-semibold text-white">{workouts.length}</h3>
+                {sessionsTrend !== 0 && (
+                  <span className={`text-xs font-medium px-1.5 py-0.5 rounded-md mb-1 ${
+                    sessionsTrend > 0 ? 'bg-accent-500/10 text-accent-400' : 'bg-red-500/10 text-red-400'
+                  }`}>
+                    {sessionsTrend > 0 ? '+' : ''}{sessionsTrend} this week
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-accent-400 mt-2">
                 {t('dashExercises')}: {workouts.reduce((sum, w) => sum + w.exercises.length, 0)}
               </p>
@@ -134,7 +215,7 @@ export const Dashboard: React.FC = () => {
                           ? `${workout.exercises[0].name}${workout.exercises.length > 1 ? ` + ${workout.exercises.length - 1} more` : ''}`
                           : t('dashExercises')}
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-slate-400">
                         {new Date(workout.date).toLocaleDateString(undefined, {
                           weekday: 'short',
                           month: 'short',
@@ -145,7 +226,7 @@ export const Dashboard: React.FC = () => {
                   </div>
                   <div className="text-end">
                     <p className="text-accent-400 font-medium">{t('rpe')} {workout.rpe}</p>
-                    <p className="text-[10px] text-slate-500">
+                    <p className="text-[11px] text-slate-400">
                       {workout.exercises.length} {t('dashExercises')}
                     </p>
                   </div>
