@@ -96,7 +96,7 @@ export const Analytics: React.FC = () => {
             <Flame size={24} />
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-500">{t('statsBestLift')}</p>
+            <p className="text-xs font-medium text-slate-400">{t('statsBestLift')}</p>
             <p className="text-2xl font-semibold text-white">{stats.bestLift} <span className="text-xs text-slate-400">{t('kg')}</span></p>
           </div>
         </Card>
@@ -105,7 +105,7 @@ export const Analytics: React.FC = () => {
             <Activity size={24} />
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-500">{t('statsAvgIntensity')}</p>
+            <p className="text-xs font-medium text-slate-400">{t('statsAvgIntensity')}</p>
             <p className="text-2xl font-semibold text-white">{stats.avgRpe} <span className="text-xs text-slate-400">{t('rpe')}</span></p>
           </div>
         </Card>
@@ -114,7 +114,7 @@ export const Analytics: React.FC = () => {
             <Target size={24} />
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-500">{t('statsLifetimeVol')}</p>
+            <p className="text-xs font-medium text-slate-400">{t('statsLifetimeVol')}</p>
             <p className="text-2xl font-semibold text-white">{(stats.totalVol / 1000).toFixed(1)} <span className="text-xs text-slate-400">{t('tons')}</span></p>
           </div>
         </Card>
@@ -122,9 +122,17 @@ export const Analytics: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card className="p-6 h-[400px] flex flex-col">
-          <h3 className="text-sm font-medium text-white mb-6 flex items-center gap-2">
-            <BarChart3 className="text-primary-400" size={16} /> {t('statsWeightProgress')}
-          </h3>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-sm font-medium text-white flex items-center gap-2">
+              <BarChart3 className="text-primary-400" size={16} /> {t('statsWeightProgress')}
+            </h3>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-primary-500" />
+                <span className="text-[11px] text-slate-400">{t('logWeight')}</span>
+              </div>
+            </div>
+          </div>
           <div className="flex-1">
             {chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -149,9 +157,21 @@ export const Analytics: React.FC = () => {
         </Card>
 
         <Card className="p-6 h-[400px] flex flex-col">
-          <h3 className="text-sm font-medium text-white mb-6 flex items-center gap-2">
-            <Target className="text-accent-400" size={16} /> {t('statsIntensityVol')}
-          </h3>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-sm font-medium text-white flex items-center gap-2">
+              <Target className="text-accent-400" size={16} /> {t('statsIntensityVol')}
+            </h3>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-accent-500" />
+                <span className="text-[11px] text-slate-400">{t('rpe')}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-highlight-500" />
+                <span className="text-[11px] text-slate-400">{t('statsLifetimeVol')}</span>
+              </div>
+            </div>
+          </div>
           <div className="flex-1">
             {chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
