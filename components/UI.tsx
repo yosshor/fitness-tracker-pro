@@ -137,7 +137,7 @@ export const Badge: React.FC<{
     neutral: 'bg-surface-700/50 text-slate-400 border-surface-600/30',
   };
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border backdrop-blur-sm ${variants[variant]} ${className}`}>
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border backdrop-blur-sm ${variants[variant]} ${className}`}>
       {children}
     </span>
   );

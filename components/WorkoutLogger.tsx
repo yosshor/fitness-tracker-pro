@@ -387,7 +387,8 @@ export const WorkoutLogger: React.FC = () => {
 
             {/* Sets grid */}
             <div className="p-4 space-y-3">
-              <div className="grid grid-cols-12 gap-3 text-[10px] font-medium text-slate-500 uppercase tracking-wider px-1">
+              {/* Desktop header row */}
+              <div className="hidden md:grid grid-cols-12 gap-3 text-[11px] font-medium text-slate-400 uppercase tracking-wider px-1">
                 <div className="col-span-1">{t('logSet')}</div>
                 <div className="col-span-5 text-center">{t('logWeight')}</div>
                 <div className="col-span-5 text-center">{t('logReps')}</div>
@@ -397,44 +398,78 @@ export const WorkoutLogger: React.FC = () => {
               {ex.sets.map((set, setIdx) => (
                 <div
                   key={setIdx}
-                  className="grid grid-cols-12 gap-3 items-center bg-surface-800/30 hover:bg-surface-800/50 p-2.5 rounded-xl group transition-colors"
+                  className="bg-surface-800/30 hover:bg-surface-800/50 p-3 rounded-xl group transition-colors"
                 >
-                  <div className="col-span-1 flex justify-center">
-                    <span className="w-7 h-7 rounded-lg bg-primary-500/10 text-primary-400 font-semibold text-sm flex items-center justify-center">
-                      {setIdx + 1}
-                    </span>
+                  {/* Mobile layout */}
+                  <div className="md:hidden">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="w-7 h-7 rounded-lg bg-primary-500/10 text-primary-400 font-semibold text-sm flex items-center justify-center">
+                        {setIdx + 1}
+                      </span>
+                      <button
+                        onClick={() => removeSet(exIdx, setIdx)}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[11px] text-slate-400 font-medium mb-1 block">{t('logWeight')}</label>
+                        <NumberStepper
+                          value={set.weight}
+                          placeholder={ex.suggestedWeightRange || '0'}
+                          onDecrement={() => adjustValue(exIdx, setIdx, 'weight', -1)}
+                          onIncrement={() => adjustValue(exIdx, setIdx, 'weight', 1)}
+                          onChange={(val) => updateSet(exIdx, setIdx, 'weight', val)}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] text-slate-400 font-medium mb-1 block">{t('logReps')}</label>
+                        <NumberStepper
+                          value={set.reps}
+                          placeholder={ex.suggestedReps?.split('-')[0] || '0'}
+                          onDecrement={() => adjustValue(exIdx, setIdx, 'reps', -1)}
+                          onIncrement={() => adjustValue(exIdx, setIdx, 'reps', 1)}
+                          onChange={(val) => updateSet(exIdx, setIdx, 'reps', val)}
+                        />
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Weight */}
-                  <div className="col-span-5">
-                    <NumberStepper
-                      value={set.weight}
-                      placeholder={ex.suggestedWeightRange || '0'}
-                      onDecrement={() => adjustValue(exIdx, setIdx, 'weight', -1)}
-                      onIncrement={() => adjustValue(exIdx, setIdx, 'weight', 1)}
-                      onChange={(val) => updateSet(exIdx, setIdx, 'weight', val)}
-                    />
-                  </div>
-
-                  {/* Reps */}
-                  <div className="col-span-5">
-                    <NumberStepper
-                      value={set.reps}
-                      placeholder={ex.suggestedReps?.split('-')[0] || '0'}
-                      onDecrement={() => adjustValue(exIdx, setIdx, 'reps', -1)}
-                      onIncrement={() => adjustValue(exIdx, setIdx, 'reps', 1)}
-                      onChange={(val) => updateSet(exIdx, setIdx, 'reps', val)}
-                    />
-                  </div>
-
-                  {/* Remove set */}
-                  <div className="col-span-1 flex justify-center">
-                    <button
-                      onClick={() => removeSet(exIdx, setIdx)}
-                      className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                  {/* Desktop layout */}
+                  <div className="hidden md:grid grid-cols-12 gap-3 items-center">
+                    <div className="col-span-1 flex justify-center">
+                      <span className="w-7 h-7 rounded-lg bg-primary-500/10 text-primary-400 font-semibold text-sm flex items-center justify-center">
+                        {setIdx + 1}
+                      </span>
+                    </div>
+                    <div className="col-span-5">
+                      <NumberStepper
+                        value={set.weight}
+                        placeholder={ex.suggestedWeightRange || '0'}
+                        onDecrement={() => adjustValue(exIdx, setIdx, 'weight', -1)}
+                        onIncrement={() => adjustValue(exIdx, setIdx, 'weight', 1)}
+                        onChange={(val) => updateSet(exIdx, setIdx, 'weight', val)}
+                      />
+                    </div>
+                    <div className="col-span-5">
+                      <NumberStepper
+                        value={set.reps}
+                        placeholder={ex.suggestedReps?.split('-')[0] || '0'}
+                        onDecrement={() => adjustValue(exIdx, setIdx, 'reps', -1)}
+                        onIncrement={() => adjustValue(exIdx, setIdx, 'reps', 1)}
+                        onChange={(val) => updateSet(exIdx, setIdx, 'reps', val)}
+                      />
+                    </div>
+                    <div className="col-span-1 flex justify-center">
+                      <button
+                        onClick={() => removeSet(exIdx, setIdx)}
+                        className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -489,7 +524,7 @@ export const WorkoutLogger: React.FC = () => {
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-4">
               <Slider label={t('logEffort')} min={1} max={10} value={rpe} onChange={setRpe} />
-              <div className="flex justify-between text-[10px] text-slate-500 font-medium">
+              <div className="flex justify-between text-[11px] text-slate-500 font-medium">
                 <span>{t('logWarmup')}</span>
                 <span>{t('logMaxEffort')}</span>
               </div>
@@ -593,7 +628,7 @@ export const WorkoutLogger: React.FC = () => {
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <Badge variant="accent" className="text-[10px]">{ex.muscleGroup}</Badge>
+                    <Badge variant="accent" className="text-[11px]">{ex.muscleGroup}</Badge>
                     {ex.description && (
                       <p className="text-[11px] text-slate-500 line-clamp-1 leading-tight pe-4">
                         {ex.description}
@@ -601,12 +636,12 @@ export const WorkoutLogger: React.FC = () => {
                     )}
                     <div className="flex items-center gap-3">
                       {ex.suggestedReps && (
-                        <p className="text-[10px] text-slate-400">
+                        <p className="text-[11px] text-slate-400">
                           {ex.suggestedSets} {t('sets')} x {ex.suggestedReps} @ {ex.suggestedWeightRange}
                         </p>
                       )}
                       {getLastTimeHint(ex.name) && (
-                        <p className="text-[10px] text-highlight-400 flex items-center gap-1">
+                        <p className="text-[11px] text-highlight-400 flex items-center gap-1">
                           <Zap size={10} /> {getLastTimeHint(ex.name)}
                         </p>
                       )}
