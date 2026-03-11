@@ -13,16 +13,11 @@
     <link rel="apple-touch-icon" href="/icon.svg">
     <link rel="manifest" href="/manifest.json">
 
-    <!-- Preconnect to Google Fonts for faster loading -->
+    <link rel="stylesheet" href="/index.css">
+
+    <!-- Load Google Fonts fully async — never block first paint, especially on Android WebView -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- Non-render-blocking font loading -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-
-    <link rel="stylesheet" href="/index.css">
 
     <!-- Inline critical styles to avoid FOUC -->
     <style>
@@ -33,5 +28,14 @@
 <body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
+    <!-- Load fonts after app JS to avoid competing for the main thread -->
+    <script>
+      requestAnimationFrame(function() {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap';
+        document.head.appendChild(link);
+      });
+    </script>
 </body>
 </html>

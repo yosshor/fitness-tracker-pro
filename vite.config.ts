@@ -1,22 +1,7 @@
 import path from 'path';
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-
-// Make Vite-injected CSS non-render-blocking by deferring load
-function deferCssPlugin(): Plugin {
-  return {
-    name: 'defer-css',
-    enforce: 'post',
-    transformIndexHtml(html) {
-      return html.replace(
-        /<link rel="stylesheet" crossorigin href="(\/assets\/[^"]+\.css)">/g,
-        '<link rel="preload" as="style" crossorigin href="$1" onload="this.rel=\'stylesheet\'">' +
-        '<noscript><link rel="stylesheet" crossorigin href="$1"></noscript>'
-      );
-    },
-  };
-}
 
 export default defineConfig({
   server: {
@@ -24,7 +9,7 @@ export default defineConfig({
     host: '0.0.0.0',
     allowedHosts: ['host.docker.internal'],
   },
-  plugins: [tailwindcss(), react(), deferCssPlugin()],
+  plugins: [tailwindcss(), react()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, '.'),

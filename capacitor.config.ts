@@ -7,6 +7,12 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
   },
+  android: {
+    // Allow mixed content so local assets + remote APIs work without issues
+    allowMixedContent: true,
+    // Start WebView with a background color matching the app to avoid white flash
+    backgroundColor: '#0c0f1a',
+  },
   plugins: {
     StatusBar: {
       style: 'DARK',
@@ -15,6 +21,11 @@ const config: CapacitorConfig = {
     Keyboard: {
       resize: 'body',
       resizeOnFullScreen: true,
+    },
+    SplashScreen: {
+      // Minimize splash screen blocking time
+      launchAutoHide: true,
+      launchShowDuration: 0,
     },
   },
 };

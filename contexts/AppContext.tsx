@@ -49,28 +49,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   }, [user]);
 
-  // Load data when user changes
+  // Load data when user changes — use cached settings instantly, fetch in background
   useEffect(() => {
     if (user) {
-      refreshWorkouts();
-      // Load settings
-      getUserSettings(user.id).then(s => {
-        if (s) {
-          setSettings(s);
-          localStorage.setItem('ft_settings', JSON.stringify(s));
-        } else {
-          // Try localStorage fallback
-          const cached = localStorage.getItem('ft_settings');
-          if (cached) {
-            try { setSettings(JSON.parse(cached)); } catch {}
+      // Show cached settings immediately to avoid blocking render
+      const cached = localStorage.getItem('ft_settings');
+      if (cached) {
+        try { setSettings(JSON.parse(cached)); } catch {}
+      }
+
+      // Defer network requests to let the UI render first
+      const timer = setTimeout(() => {
+        refreshWorkouts();
+        getUserSettings(user.id).then(s => {
+          if (s) {
+            setSettings(s);
+            localStorage.setItem('ft_settings', JSON.stringify(s));
           }
-        }
-      }).catch(() => {
-        const cached = localStorage.getItem('ft_settings');
-        if (cached) {
-          try { setSettings(JSON.parse(cached)); } catch {}
-        }
-      });
+        }).catch(() => {});
+      }, 50);
+      return () => clearTimeout(timer);
     } else {
       setWorkouts([]);
       setSettings(defaultSettings);

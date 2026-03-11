@@ -104,12 +104,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
     }
 
-    // 3. Hard safety timeout.
+    // 3. Hard safety timeout — keep short to avoid ANR on slow emulators.
     const safetyTimer = setTimeout(() => {
       if (!loadingCleared) {
         clearLoading();
       }
-    }, 4000);
+    }, 2500);
 
     return () => {
       cancelled = true;

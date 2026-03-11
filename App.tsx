@@ -3,8 +3,10 @@ import React, { lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import { useLanguage } from './i18n/LanguageContext';
-import { Dashboard } from './components/Dashboard';
 import { AuthScreen } from './components/AuthScreen';
+
+// Lazy-load Dashboard — it pulls in heavy charting/stat UI on mount
+const Dashboard = lazy(() => import('./components/Dashboard').then(m => ({ default: m.Dashboard })));
 import { NotificationToast } from './components/NotificationToast';
 import { Avatar, LanguageToggle } from './components/UI';
 import {
