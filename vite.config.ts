@@ -15,6 +15,15 @@ export default defineConfig({
       '@': path.resolve(__dirname, '.'),
     }
   },
+  css: {
+    transformer: 'lightningcss',
+    lightningcss: {
+      // Transpile modern CSS for older Android WebViews (Chrome 80+)
+      targets: {
+        chrome: (80 << 16),
+      },
+    },
+  },
   build: {
     target: 'es2020',
     cssMinify: 'lightningcss',
