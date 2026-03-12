@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { GoogleGenAI } from '@google/genai';
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
@@ -54,6 +55,16 @@ export const FitnessChat: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const normalizeMarkdown = (text: string): string => {
+    return text
+      .replace(/\r\n/g, '\n')
+      .replace(/^(#{1,6}\s)/gm, '\n$1')
+      .replace(/^(\d+\.\s)/gm, '\n$1')
+      .replace(/^([*\-]\s)/gm, '\n$1')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  };
 
   const systemPrompt = language === 'he'
     ? `אתה מאמן כושר וייעוץ תזונה מקצועי. תפקידך לענות על שאלות על:
@@ -203,6 +214,7 @@ Use emojis minimally. Give structured answers with bullet points when appropriat
                 >
                   {msg.role === 'user' ? msg.content : (
                     <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
                       components={{
                         h1: ({ children }) => <h1 className="text-lg font-bold text-white mt-3 mb-2 first:mt-0">{children}</h1>,
                         h2: ({ children }) => <h2 className="text-base font-bold text-white mt-3 mb-2 first:mt-0">{children}</h2>,
@@ -225,7 +237,7 @@ Use emojis minimally. Give structured answers with bullet points when appropriat
                         a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary-400 underline underline-offset-2 hover:text-primary-300">{children}</a>,
                       }}
                     >
-                      {msg.content}
+                      {normalizeMarkdown(msg.content)}
                     </ReactMarkdown>
                   )}
                 </div>
