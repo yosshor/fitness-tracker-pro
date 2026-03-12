@@ -45,4 +45,31 @@ export function initCapacitor() {
       App.exitApp();
     }
   });
+
+  // Handle OAuth deep link callback (com.cybergym.fitnesstracker://login-callback#access_token=...)
+  App.addListener('appUrlOpen', async ({ url }) => {
+    if (!url.includes('login-callback')) return;
+
+    // Close the Custom Tab
+    try {
+      const { Browser } = await import('@capacitor/browser');
+      await Browser.close();
+    } catch { /* ignore */ }
+
+    // Extract tokens from the URL fragment
+    const hashIndex = url.indexOf('#');
+    if (hashIndex === -1) return;
+
+    const params = new URLSearchParams(url.substring(hashIndex + 1));
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+
+    if (accessToken && refreshToken) {
+      const { supabase } = await import('./supabase');
+      await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+    }
+  });
 }

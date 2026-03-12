@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase, consumeOAuthTokens } from '../services/supabase';
 import { getUserProfile, saveUserProfile } from '../services/supabaseService';
+import { isNative } from '../services/capacitor';
 import { UserProfile } from '../types';
 
 interface AuthContextType {
@@ -134,13 +135,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithGoogle = async () => {
     setError(null);
-    const { error: err } = await supabase.auth.signInWithOAuth({
+
+    const redirectTo = isNative
+      ? 'com.cybergym.fitnesstracker://login-callback'
+      : window.location.origin;
+
+    const { data, error: err } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      options: {
+        redirectTo,
+        skipBrowserRedirect: true,
+      },
     });
+
     if (err) {
       setError('Google sign-in failed. Please try again');
       throw err;
+    }
+
+    if (data.url) {
+      if (isNative) {
+        const { Browser } = await import('@capacitor/browser');
+        await Browser.open({ url: data.url, windowName: '_self' });
+      } else {
+        window.location.href = data.url;
+      }
     }
   };
 
