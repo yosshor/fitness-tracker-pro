@@ -58,7 +58,7 @@ For each exercise, provide:
 Be creative and include variations (e.g., dumbbells, cables, bodyweight, machines).${langInstruction(language)}`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -157,7 +157,7 @@ For each exercise provide:
 Return the results grouped by muscle group.${langInstruction(language)}`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -251,7 +251,7 @@ Recent workouts:
 ${workoutSummary}${langNote}`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash",
       contents: prompt,
     });
 

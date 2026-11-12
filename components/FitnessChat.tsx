@@ -119,7 +119,7 @@ Use emojis minimally. Give structured answers with bullet points when appropriat
       });
 
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.8-flash',
         contents: [
           { role: 'user', parts: [{ text: systemPrompt }] },
           { role: 'model', parts: [{ text: language === 'he' ? 'מובן, אני מוכן לעזור!' : 'Understood, I\'m ready to help!' }] },
