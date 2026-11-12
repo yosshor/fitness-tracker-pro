@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { GoogleGenAI } from '@google/genai';
+import { generate } from '../services/aiService';
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -118,8 +119,7 @@ Use emojis minimally. Give structured answers with bullet points when appropriat
         parts: [{ text: messageText }],
       });
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
+      const response = await generate(ai, {
         contents: [
           { role: 'user', parts: [{ text: systemPrompt }] },
           { role: 'model', parts: [{ text: language === 'he' ? 'מובן, אני מוכן לעזור!' : 'Understood, I\'m ready to help!' }] },

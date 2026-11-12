@@ -2,6 +2,26 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { MuscleGroup, ExerciseDefinition, ExerciseHistoryEntry } from "../types";
 
+// Tried in order; falls through to the next one when Google is overloaded (429/5xx).
+const MODELS = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.5-flash-lite"];
+
+export async function generate(
+  ai: GoogleGenAI,
+  params: Omit<Parameters<GoogleGenAI["models"]["generateContent"]>[0], "model">
+) {
+  let lastErr: any;
+  for (const model of MODELS) {
+    try {
+      return await ai.models.generateContent({ ...params, model });
+    } catch (err: any) {
+      lastErr = err;
+      const status = err?.status ?? 0;
+      if (status !== 429 && status < 500) throw err;
+    }
+  }
+  throw lastErr;
+}
+
 function langInstruction(lang: string): string {
   if (lang === 'he') {
     return '\n\nIMPORTANT: Respond entirely in Hebrew (עברית). All exercise names, descriptions, form cues, and weight ranges must be in Hebrew. YouTube search URLs should still use English terms for better results.';
@@ -57,8 +77,7 @@ For each exercise, provide:
 
 Be creative and include variations (e.g., dumbbells, cables, bodyweight, machines).${langInstruction(language)}`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.8-flash",
+    const response = await generate(ai, {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -156,8 +175,7 @@ For each exercise provide:
 
 Return the results grouped by muscle group.${langInstruction(language)}`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.8-flash",
+    const response = await generate(ai, {
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -250,8 +268,7 @@ Keep each insight to 1-2 sentences. Be encouraging but honest.
 Recent workouts:
 ${workoutSummary}${langNote}`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.8-flash",
+    const response = await generate(ai, {
       contents: prompt,
     });
 
