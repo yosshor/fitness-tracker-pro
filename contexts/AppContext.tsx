@@ -13,7 +13,7 @@ interface AppContextType {
 }
 
 const defaultSettings: UserSettings = {
-  geminiApiKey: import.meta.env.VITE_GEMINI_API_KEY || '',
+  geminiApiKey: '',
   language: 'en'
 };
 

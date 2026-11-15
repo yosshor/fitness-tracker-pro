@@ -51,9 +51,6 @@ Create a `.env.local` file in the project root:
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# Gemini AI
-VITE_GEMINI_API_KEY=your_gemini_api_key
-
 # Cloudinary — get from Cloudinary Dashboard → Settings → Upload Presets
 VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
 VITE_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
