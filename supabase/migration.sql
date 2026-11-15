@@ -104,7 +104,7 @@ create policy "Users can update own settings" on user_settings for update using 
 -- Storage bucket for photos
 -- ============================================
 
-insert into storage.buckets (id, name, public) values ('photos', 'photos', true)
+insert into storage.buckets (id, name, public) values ('photos', 'photos', false)
 on conflict do nothing;
 
 -- Users can upload to their own folder: {userId}/...
@@ -115,6 +115,7 @@ create policy "Users can upload to own folder" on storage.objects for insert
 create policy "Users can delete from own folder" on storage.objects for delete
   using (bucket_id = 'photos' and auth.uid()::text = (storage.foldername(name))[1]);
 
--- Public bucket = anyone can read (for displaying images)
-create policy "Public read access" on storage.objects for select
-  using (bucket_id = 'photos');
+-- Private bucket: users can only read their own folder (images are served via signed URLs)
+create policy "Users can read own folder" on storage.objects for select
+  to authenticated
+  using (bucket_id = 'photos' and auth.uid()::text = (storage.foldername(name))[1]);

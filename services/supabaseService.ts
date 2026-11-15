@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { signPhotoUrl } from './storageService';
 import {
   WorkoutSession, ProgressPhoto, UserProfile, UserSettings,
   ExerciseHistoryEntry, MuscleGroup
@@ -32,7 +33,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
     id: data.id,
     email: data.email,
     displayName: data.display_name,
-    profilePhotoUrl: data.profile_photo_url,
+    profilePhotoUrl: await signPhotoUrl(data.profile_photo_url),
     currentSplit: data.current_split,
     volumePerMuscle: data.volume_per_muscle,
     language: data.language,
@@ -180,14 +181,17 @@ export async function getPhotos(userId: string): Promise<ProgressPhoto[]> {
     .order('date', { ascending: false });
 
   if (error) throw error;
-  return (data || []).map(row => ({
-    id: row.id,
-    url: row.url,
-    storagePath: row.storage_path,
-    thumbnailUrl: row.thumbnail_url,
-    date: row.date,
-    caption: row.caption,
-  } as ProgressPhoto));
+  return Promise.all((data || []).map(async row => {
+    const url = await signPhotoUrl(row.storage_path || row.url);
+    return {
+      id: row.id,
+      url,
+      storagePath: row.storage_path,
+      thumbnailUrl: url,
+      date: row.date,
+      caption: row.caption,
+    } as ProgressPhoto;
+  }));
 }
 
 export async function deletePhoto(userId: string, photoId: string): Promise<void> {
